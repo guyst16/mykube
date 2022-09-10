@@ -22,35 +22,28 @@ wget https://download.fedoraproject.org/pub/fedora/linux/releases/36/Server/x86_
 Create storage pool on the current disk
 ```
 $ mkdir ~/guest_images
-$ cat <<EOF >> guest_pool.xml 
+$ cat <<EOF > guest_pool.xml 
 <pool type='fs'>
   <name>guest_images_fs</name>
   <source>
     <device path='$(df . | grep dev | cut -d" " -f1)'/>
   </source>
   <target>
-    <path>~/guest_images</path>
+    <path>$HOME/guest_images</path>
   </target>
 </pool> 
 EOF
 
-$ virsh pool-create guest_images.xml
+$ sudo virsh pool-create guest_pool.xml
+$ sudo virsh pool-list --all
+ Name              State    Autostart
+---------------------------------------
+ guest_images_fs   active   no
 ```
 
-Use the xml file for the volume
+Create volume in the same pool
 ```
-<volume>
-  <name>volume1</name>
-  <allocation>0</allocation>
-  <capacity>20G</capacity>
-  <target>
-    <path>/var/lib/virt/images/sparse.img</path>
-  </target>
-</volume> 
-```
-Create the volume
-```
-$ virsh vol-create guest_images_dir guest_volume.xml
+$ sudo virsh vol-create-as guest_images_fs volume1 40G
 ```
 
 4. Create the vm
