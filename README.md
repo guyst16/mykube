@@ -45,7 +45,7 @@ Create volume in the same pool
 ```
 $ sudo virsh vol-create-as guest_images_fs volume1 40G
 ```
-4. Create the //Kickstart// file
+4. Create the <i>Kickstart</i> file
 ```
 # System timezone
 timezone Africa/Bissau
