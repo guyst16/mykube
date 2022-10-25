@@ -17,7 +17,7 @@ kvm                   831488  1 kvm_amd
 ```
 wget https://download.fedoraproject.org/pub/fedora/linux/releases/36/Server/x86_64/iso/Fedora-Server-dvd-x86_64-36-1.5.iso
 ```
-
+(Optional)
 3. Create volume for the vm
 Create storage pool on the current disk
 ```
