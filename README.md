@@ -45,8 +45,13 @@ Create volume in the same pool
 ```
 $ sudo virsh vol-create-as guest_images_fs volume1 40G
 ```
-
-4. Create the vm
+4. Create the //Kickstart// file
 ```
-$ virt-install -n myFedoraVM --description "my test Fedora vm" --os-type=Linux --os-variant=fedora36 --ram=2048 --vcpus=2 --disk path=/var/lib/libvirt/images/myFedoraVM.img,bus=virtio,size=10 --graphics none --location /root/Fedora-Server-dvd-x86_64-36-1.5.iso --extra-args='console=tty0 console=ttyS0,115200n8 serial'
+# System timezone
+timezone Africa/Bissau
+```
+
+5. Create the vm
+```
+$ virt-install -n myFedoraVM --description "my test Fedora vm" --os-type=Linux --os-variant=fedora36 --ram=2048 --vcpus=2 --disk path=/var/lib/libvirt/images/myFedoraVM.img,bus=virtio,size=10 --graphics none --location /root/Fedora-Server-dvd-x86_64-36-1.5.iso --initrd-inject /root/test-ks.cfg --extra-args='inst.ks=file:/test-ks.cfg console=tty0 console=ttyS0,115200n8 serial'
 ```
