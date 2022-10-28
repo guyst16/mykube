@@ -1,0 +1,6 @@
+---
+
+- hosts: all
+  remote_user: liveuser
+  roles:  
+  - test

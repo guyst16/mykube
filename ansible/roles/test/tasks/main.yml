@@ -1,0 +1,5 @@
+---
+# tasks file for test
+
+- name: test
+  ansible.builtin.command: /usr/bin/touch /tmp/test
