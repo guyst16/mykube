@@ -2,5 +2,6 @@
 
 - hosts: all
   remote_user: liveuser
+  gather_facts: false
   roles:  
   - test
