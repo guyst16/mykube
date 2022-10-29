@@ -1,9 +1,13 @@
 ---
 # tasks file for test
 
-- name: wait for connection to host for 2 mins
+- name: test
+  debug:
+    msg: test
+
+- name: wait for connection to host for 20 mins
   wait_for_connection:
-    timeout: 120
+    timeout: 1200
 
 - name: test
   ansible.builtin.command: /usr/bin/touch /tmp/test
