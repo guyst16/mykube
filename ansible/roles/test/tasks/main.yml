@@ -9,5 +9,12 @@
   wait_for_connection:
     timeout: 1200
 
-- name: test
-  ansible.builtin.command: /usr/bin/touch /tmp/test
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install Kubeadmin
+  yum:
+    name: ''
+    state: latest
