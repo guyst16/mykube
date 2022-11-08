@@ -1,14 +1,20 @@
 dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
-dnf install -y containerd.io
+dnf install -y containerd.io git go
 
-echo '[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]' >> /etc/containerd/config.toml
-echo '  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]' >> /etc/containerd/config.toml
-echo '    SystemdCgroup = true' >> /etc/containerd/config.toml
-
-sed -i '/disabled_plugins/d' /etc/containerd/config.toml 
+containerd config default > /etc/containerd/config.toml;
+sed -i  "s/SystemdCgroup = false/SystemdCgroup = true/" /etc/containerd/config.toml;
+systemctl restart containerd;
+systemctl enable containerd;
+systemctl daemon-reload;
     
 systemctl restart containerd
+
+mkdir /tmp/networking-plugins
+git clone https://github.com/containernetworking/plugins.git /tmp/networking-plugins
+/tmp/networking-plugins/test_linux.sh
+
+
 
 cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -59,6 +65,16 @@ systemctl restart firewalld;
 
 dnf install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 
-kubeadm init
+kubeadm init --pod-network-cidr=10.244.0.0/16
 
 systemctl enable --now kubelet
+
+sleep 30
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+kubectl taint node fedora node-role.kubernetes.io/control-plane-
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+
+cp -r /tmp/networking-plugins/bin/* /opt/cni/bin
+

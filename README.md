@@ -61,3 +61,9 @@ Run the next 2 commands
 ```
 $ virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM
 ```
+
+### Quick ssh to vm
+Run the command:
+```
+$ sshpass -p qwe123 ssh liveuser@$(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}' | cut -d'/' -f1)
+```

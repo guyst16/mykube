@@ -20,5 +20,6 @@
     dest: /tmp/day2.sh
     mode: '0777'
 
-      #- name: Run the script
-      #  command: sh /tmp/day2.sh
+- name: Run the script
+  command: sh /tmp/day2.sh
+  timeout: 1200
