@@ -5,21 +5,104 @@
   debug:
     msg: test
 
-- name: wait for connection to host for 20 mins
-  wait_for_connection:
-    timeout: 1200
+      #- name: wait for connection to host for 20 mins
+      #  wait_for_connection:
+      #    timeout: 1200
+      #
+      #- name: Upgrade all packages
+      #  yum:
+      #    name: '*'
+      #    state: latest
+      #
+      #- name: Copy script to tmp
+      #  copy:
+      #    src: /root/k8s-installer/ansible/day2.sh
+      #    dest: /tmp/day2.sh
+      #    mode: '0777'
+      #
+      #      #- name: Run the script
+      #      #  command: sh /tmp/day2.sh
+      #      #  timeout: 1200
+      #
+      #- name: Add docker-ce repository
+      #  command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
+      #
+      #- name: Install containerd.io
+      #  yum:
+      #    name: containerd.io
+      #    state: latest
+      #
+      #- name: Install go
+      #  yum:
+      #    name: go
+      #    state: latest
+      #
+      #- name: Install git
+      #  yum:
+      #    name: git
+      #    state: latest
+ 
+      #- name: Get Containerd default config file
+      #  command: "containerd config default"
+      #  register: Default_containerd_config
+      #
+      #- debug:
+      #    msg: "{{ Default_containerd_config.stdout }}"
+      #
+      #- name: Copy default Containerd config to /etc/containerd/config.toml
+      #  copy: 
+      #    content: "{{ Default_containerd_config.stdout }}"
+      #    dest: "/etc/containerd/config.toml"
+      #
+      #- name: Enable SystemdCgroup inside /etc/containerd/config.toml
+      #  replace:
+      #    path: /etc/containerd/config.toml
+      #    regexp: 'SystemdCgroup = false'
+      #    replace: 'SystemdCgroup = true'
 
-- name: Upgrade all packages
-  yum:
-    name: '*'
-    state: latest
+      #- name: Restart & enable Containerd and daemon reload
+      #  systemd:
+      #    name: containerd
+      #    state: restarted
+      #    enabled: yes
+      #    daemon_reload: yes
+      #
+      #- name: Git clone container networking plugins
+      #  git:
+      #    repo: "https://github.com/containernetworking/plugins.git"
+      #    dest: "/tmp/network-plugins"
+      #
+      #- name: Create all container networking plugins binaries
+      #  command: "sh /tmp/network-plugins/build_linux.sh"
 
-- name: Copy script to tmp
-  copy:
-    src: /root/k8s-installer/ansible/day2.sh
-    dest: /tmp/day2.sh
-    mode: '0777'
+- name: Add kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: k8s-packages
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+    enabled: true
+    gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    exclude: kubelet kubeadm kubectl
 
-- name: Run the script
-  command: sh /tmp/day2.sh
-  timeout: 1200
+- name: Set Selinux to permissive right now
+  command: "setenforce 0"
+
+- name: Set selinux to permissive in /etc/selinux/config
+  replace:
+    path: /etc/selinux/config
+    regexp: '^SELINUX=enforcing$'
+    replace: 'SELINUX=permissive'
+
+
+
+
+
+
+
+      #- name: Copy all container networking plugins binaries to /opt/cni/bin
+      #  copy:
+      #    src: /tmp/network-plugins/bin
+      #    dest: /opt/cni/bin
+      #    remote_src: yes
+      #    directory_mode: yes
