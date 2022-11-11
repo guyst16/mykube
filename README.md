@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/100173467/201345993-2ecc594a-d066-42b2-bc76-76d743e45e2f.png">
+</p>
+
+
 # k8s-installer
 
 ### Steps
