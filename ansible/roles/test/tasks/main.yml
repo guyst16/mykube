@@ -10,16 +10,6 @@
     name: '*'
     state: latest
 
-- name: Copy script to tmp
-  copy:
-    src: /root/k8s-installer/ansible/day2.sh
-    dest: /tmp/day2.sh
-    mode: '0777'
-
-      #- name: Run the script
-      #  command: sh /tmp/day2.sh
-      #  timeout: 1200
-
 - name: Add docker-ce repository
   command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
 
