@@ -34,3 +34,6 @@ $ sshpass -p qwe123 ssh liveuser@$(virsh domifaddr --domain myFedoraVM | grep ':
 - [x] Fedora - 6.0.5-200.fc36.x86_64
 - [ ] Ubuntu 
 - [ ] Debian
+
+
+## Feel free to open issues and suggestion
