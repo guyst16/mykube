@@ -1,214 +1,214 @@
 ---
 # tasks file for test
 
-#- name: wait for connection to host for 20 mins
-#  wait_for_connection:
-#    timeout: 1200
-#
-#- name: Upgrade all packages
-#  yum:
-#    name: '*'
-#    state: latest
-#
-#- name: Copy script to tmp
-#  copy:
-#    src: /root/k8s-installer/ansible/day2.sh
-#    dest: /tmp/day2.sh
-#    mode: '0777'
-#
-#      #- name: Run the script
-#      #  command: sh /tmp/day2.sh
-#      #  timeout: 1200
-#
-#- name: Add docker-ce repository
-#  command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
-#
-#- name: Install containerd.io
-#  yum:
-#    name: containerd.io
-#    state: latest
-#
-#- name: Install go
-#  yum:
-#    name: go
-#    state: latest
-#
-#- name: Install git
-#  yum:
-#    name: git
-#    state: latest
-#
-#- name: Get Containerd default config file
-#  command: "containerd config default"
-#  register: Default_containerd_config
-#
-#- debug:
-#    msg: "{{ Default_containerd_config.stdout }}"
-#
-#- name: Copy default Containerd config to /etc/containerd/config.toml
-#  copy: 
-#    content: "{{ Default_containerd_config.stdout }}"
-#    dest: "/etc/containerd/config.toml"
-#
-#- name: Enable SystemdCgroup inside /etc/containerd/config.toml
-#  replace:
-#    path: /etc/containerd/config.toml
-#    regexp: 'SystemdCgroup = false'
-#    replace: 'SystemdCgroup = true'
-#
-#- name: Restart & enable Containerd and daemon reload
-#  systemd:
-#    name: containerd
-#    state: restarted
-#    enabled: yes
-#    daemon_reload: yes
-#
-#- name: Git clone container networking plugins
-#  git:
-#    repo: "https://github.com/containernetworking/plugins.git"
-#    dest: "/tmp/network-plugins"
-#
-#- name: Create all container networking plugins binaries
-#  command: "sh /tmp/network-plugins/build_linux.sh"
-#
-#- name: Add kubernetes repository
-#  yum_repository:
-#    name: kubernetes
-#    description: k8s-packages
-#    baseurl: 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch'
-#    enabled: true
-#    gpgcheck: yes
-#    gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-#    exclude: kubelet kubeadm kubectl
-#
-#- name: Set Selinux to permissive right now
-#  command: "setenforce 0"
-#
-#- name: Set selinux to permissive in /etc/selinux/config
-#  replace:
-#    path: /etc/selinux/config
-#    regexp: '^SELINUX=enforcing$'
-#    replace: 'SELINUX=permissive'
-#
-#- name: Insert modules for k8s
-#  blockinfile:
-#    path: /etc/modules-load.d/k8s.conf
-#    create: yes
-#    block: |
-#      overlay
-#      br_netfilter
-#
-#- name: Modprobe overlay
-#  modprobe:
-#    name: overlay
-#    state: present
-#
-#- name: Modprobe br_netfilter
-#  modprobe:
-#    name: br_netfilter
-#    state: present
-#
-#- name: Insert sysctl configuration for k8s
-#  blockinfile:
-#    path: /etc/sysctl.d/k8s.conf
-#    create: yes
-#    block: |
-#      net.bridge.bridge-nf-call-iptables  = 1
-#      net.bridge.bridge-nf-call-ip6tables = 1
-#      net.ipv4.ip_forward                 = 1
-#
-#- name: Aplly sysctl changes
-#  command: "sysctl --system"
-#
-#- name: Restart dbus
-#  systemd:
-#    name: dbus
-#    state: restarted
-#   
-#- name: Restart & enable firewalld
-#  systemd:
-#    name: firewalld
-#    state: restarted
-#    enabled: yes
-#
-#- name: Enable port 6443 in firewall
-#  firewalld:
-#    port: 6443/tcp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable ports 2379-2380 in firewall
-#  firewalld:
-#    port: 2379-2380/tcp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable ports 10250-10252 in firewall
-#  firewalld:
-#    port: 10250-10252/tcp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable port 10255 in firewall
-#  firewalld:
-#    port: 10255/tcp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable port 8472 in firewall
-#  firewalld:
-#    port: 8472/udp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable ports 30000-32767 in firewall
-#  firewalld:
-#    port: 30000-32767/tcp
-#    permanent: yes
-#    state: enabled
-#
-#- name: Enable masquerade in zone
-#  firewalld:
-#    masquerade: true
-#    permanent: yes
-#    state: enabled
-#
-#- name: Restart firewalld
-#  systemd:
-#    name: firewalld
-#    state: restarted
-#
-#- name: Install kubeadm, kubelet & kubectl
-#  yum:
-#    name: "{{ packages }}"
-#    disable_excludes: kubernetes
-#  vars:
-#    packages:
-#    - kubeadm
-#    - kubelet
-#    - kubectl
-#
-#- name: Install k8s cluster
-#  command: "kubeadm init --pod-network-cidr=10.244.0.0/16"
-#
-#- name: Enable kubelet
-#  systemd:
-#    name: kubelet
-#    enabled: yes
-#
-#- name: Wait 30 seconds for the cluster to be ready
-#  pause:
-#    seconds: 30
-#
-#- name: Disable taint control-plane
-#  command: "kubectl taint node fedora node-role.kubernetes.io/control-plane-"
-#
-#- name: Aplly flanneld network plugin
-#  command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
-#
-#- name: Wait 40 seconds for the flanneld to be ready
-#  pause:
-#    seconds: 40
+- name: wait for connection to host for 20 mins
+  wait_for_connection:
+    timeout: 1200
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Copy script to tmp
+  copy:
+    src: /root/k8s-installer/ansible/day2.sh
+    dest: /tmp/day2.sh
+    mode: '0777'
+
+      #- name: Run the script
+      #  command: sh /tmp/day2.sh
+      #  timeout: 1200
+
+- name: Add docker-ce repository
+  command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
+
+- name: Install containerd.io
+  yum:
+    name: containerd.io
+    state: latest
+
+- name: Install go
+  yum:
+    name: go
+    state: latest
+
+- name: Install git
+  yum:
+    name: git
+    state: latest
+
+- name: Get Containerd default config file
+  command: "containerd config default"
+  register: Default_containerd_config
+
+- debug:
+    msg: "{{ Default_containerd_config.stdout }}"
+
+- name: Copy default Containerd config to /etc/containerd/config.toml
+  copy: 
+    content: "{{ Default_containerd_config.stdout }}"
+    dest: "/etc/containerd/config.toml"
+
+- name: Enable SystemdCgroup inside /etc/containerd/config.toml
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup = false'
+    replace: 'SystemdCgroup = true'
+
+- name: Restart & enable Containerd and daemon reload
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+- name: Git clone container networking plugins
+  git:
+    repo: "https://github.com/containernetworking/plugins.git"
+    dest: "/tmp/network-plugins"
+
+- name: Create all container networking plugins binaries
+  command: "sh /tmp/network-plugins/build_linux.sh"
+
+- name: Add kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: k8s-packages
+    baseurl: 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch'
+    enabled: true
+    gpgcheck: yes
+    gpgkey: https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    exclude: kubelet kubeadm kubectl
+
+- name: Set Selinux to permissive right now
+  command: "setenforce 0"
+
+- name: Set selinux to permissive in /etc/selinux/config
+  replace:
+    path: /etc/selinux/config
+    regexp: '^SELINUX=enforcing$'
+    replace: 'SELINUX=permissive'
+
+- name: Insert modules for k8s
+  blockinfile:
+    path: /etc/modules-load.d/k8s.conf
+    create: yes
+    block: |
+      overlay
+      br_netfilter
+
+- name: Modprobe overlay
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Modprobe br_netfilter
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Insert sysctl configuration for k8s
+  blockinfile:
+    path: /etc/sysctl.d/k8s.conf
+    create: yes
+    block: |
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward                 = 1
+
+- name: Aplly sysctl changes
+  command: "sysctl --system"
+
+- name: Restart dbus
+  systemd:
+    name: dbus
+    state: restarted
+   
+- name: Restart & enable firewalld
+  systemd:
+    name: firewalld
+    state: restarted
+    enabled: yes
+
+- name: Enable port 6443 in firewall
+  firewalld:
+    port: 6443/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable ports 2379-2380 in firewall
+  firewalld:
+    port: 2379-2380/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable ports 10250-10252 in firewall
+  firewalld:
+    port: 10250-10252/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable port 10255 in firewall
+  firewalld:
+    port: 10255/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable port 8472 in firewall
+  firewalld:
+    port: 8472/udp
+    permanent: yes
+    state: enabled
+
+- name: Enable ports 30000-32767 in firewall
+  firewalld:
+    port: 30000-32767/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable masquerade in zone
+  firewalld:
+    masquerade: true
+    permanent: yes
+    state: enabled
+
+- name: Restart firewalld
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Install kubeadm, kubelet & kubectl
+  yum:
+    name: "{{ packages }}"
+    disable_excludes: kubernetes
+  vars:
+    packages:
+    - kubeadm
+    - kubelet
+    - kubectl
+
+- name: Install k8s cluster
+  command: "kubeadm init --pod-network-cidr=10.244.0.0/16"
+
+- name: Enable kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+
+- name: Wait 30 seconds for the cluster to be ready
+  pause:
+    seconds: 30
+
+- name: Disable taint control-plane
+  command: "kubectl taint node fedora node-role.kubernetes.io/control-plane-"
+
+- name: Aplly flanneld network plugin
+  command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
+
+- name: Wait 40 seconds for the flanneld to be ready
+  pause:
+    seconds: 40
 
 - name: Copy all container networking plugins binaries to /opt/cni/bin
   copy:
