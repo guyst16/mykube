@@ -29,3 +29,8 @@ Run the command:
 ```
 $ sshpass -p qwe123 ssh liveuser@$(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}' | cut -d'/' -f1)
 ```
+
+Linux kernel distributions:
+[x] Fedora - 6.0.5-200.fc36.x86_64
+[] Ubuntu 
+[] Debian
