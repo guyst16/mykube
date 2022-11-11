@@ -22,8 +22,16 @@ fi
 echo -e "\nTry deleting 'myFedoraVM' if exists..."
 virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM
 
+echo -e "\nCheck if default network is activated"
+if virsh net-info --network default | grep Active | grep -q yes; then
+	echo -e "\ndefault network is activated"
+else
+	echo -e "\ndefault network is not activated\nActivating default network"
+	virsh net-start default;
+fi
+
 echo -e "\nStart deploying the new vm..."
-virt-install -n myFedoraVM --description "my test Fedora vm" --os-variant=fedora36 --ram=2048 --vcpus=2 --disk path=/var/lib/libvirt/images/myFedoraVM.img,bus=virtio,size=20 --graphics none --location /root/Fedora-Server-dvd-x86_64-36-1.5.iso --initrd-inject /root/k8s-installer/ks.cfg --extra-args='inst.ks=file:/ks.cfg console=tty0 console=ttyS0,115200n8' --noautoconsole --wait=-1
+virt-install -n myFedoraVM --description "my test Fedora vm" --os-variant=fedora36 --ram=2048 --vcpus=2 --disk path=/var/lib/libvirt/images/myFedoraVM.img,bus=virtio,size=20 --graphics none --location /var/lib/libvirt/images/Fedora-Server-dvd-x86_64-36-1.5.iso --initrd-inject ../ks.cfg --extra-args='inst.ks=file:/ks.cfg console=tty0 console=ttyS0,115200n8' --noautoconsole --wait=-1
 
 # Waiting for IP address
 echo -e "\nWait 20 seconds for IP address to get assigned..."
