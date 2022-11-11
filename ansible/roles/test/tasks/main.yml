@@ -1,10 +1,6 @@
 ---
 # tasks file for test
 
-#- name: test
-#  debug:
-#    msg: test
-#
 #- name: wait for connection to host for 20 mins
 #  wait_for_connection:
 #    timeout: 1200
@@ -210,9 +206,9 @@
 #- name: Aplly flanneld network plugin
 #  command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
 #
-#- name: Wait 20 seconds for the flanneld to be ready
+#- name: Wait 40 seconds for the flanneld to be ready
 #  pause:
-#    seconds: 20
+#    seconds: 40
 
 - name: Copy all container networking plugins binaries to /opt/cni/bin
   copy:
