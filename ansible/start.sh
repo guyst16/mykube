@@ -18,6 +18,16 @@ else
 	echo -e "\nIso file is ready for use"
 fi
 
+echo -e "\nValidate that fedora os exists in osdb-info..."
+if (osinfo-query os | grep -q fedora36); then
+        echo -e "\nFedora os exists"
+else
+        echo -e "\nFedor os does not exists\nStart  updating OS..."
+        wget https://releases.pagure.org/libosinfo/osinfo-db-20221018.tar.xz
+	osinfo-db-import osinfo-db-20221018.tar.xz
+        echo -e "\nOS db updated"
+fi
+
 
 echo -e "\nTry deleting 'myFedoraVM' if exists..."
 virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM
