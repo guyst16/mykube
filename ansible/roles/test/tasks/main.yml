@@ -28,6 +28,11 @@
     name: git
     state: latest
 
+- name: Install libselinux-python3
+  yum:
+    name: libselinux-python3
+    state: latest
+
 - name: Get Containerd default config file
   command: "containerd config default"
   register: Default_containerd_config
@@ -206,3 +211,9 @@
     dest: /opt/cni/bin
     remote_src: yes
     directory_mode: yes
+
+- name: Chmod 777 the /opt/cni/bin files
+  file:
+    path: /opt/cni/bin
+    mode: 777
+    recurse: yes
