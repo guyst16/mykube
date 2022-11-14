@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo -e "\nDownloading packages..."
-yum install qemu-kvm qemu-img libvirt libvirt-python libvirt-client virt-instal virt-viewer bridge-utils tigervnc-server
+yum install ansible qemu-kvm qemu-img libvirt python3-libvirt libvirt-client virt-install virt-viewer bridge-utils
 
 echo -e "\nStart sshd service..."
 systemctl start sshd
