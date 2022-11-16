@@ -5,5 +5,6 @@
   gather_facts: false
   roles:  
   - test
+  - deploy-console
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf

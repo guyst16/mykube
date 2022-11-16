@@ -51,5 +51,8 @@ sleep 20
 echo -e "\nDelete fingerprint from ~/.ssh/known_hosts if exists..."
 ssh-keygen -f ~/.ssh/known_hosts -R $(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}' | cut -d'/' -f1)
 
+echo -e "\nInstall k8s module for ansible"
+ansible-galaxy collection install kubernetes.core
+
 echo -e "\nRun ansible-playbook for deploying k8s..."
 ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook install-k8.yaml -e "ansible_password=qwe123" -i $(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}' | cut -d'/' -f1), -b
