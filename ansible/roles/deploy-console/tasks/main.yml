@@ -4,4 +4,29 @@
 - name: Deploy console
   command: "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml"
 
-      # - name:
+- name: Patch console service to NodePort type
+  command: "kubectl patch service -n kubernetes-dashboard kubernetes-dashboard  --patch '{\"spec\": {\"type\": \"NodePort\"}}'"
+
+- name: Get console service NodePort
+  command: "kubectl get service -n kubernetes-dashboard kubernetes-dashboard  -o jsonpath='{.spec.ports[].nodePort}'"
+  register: service_nodeport  
+
+- name: Create cluster-admin sa
+  command: "kubectl create sa cluster-admin --namespace=default"
+
+- name: Create rolebinding for sa cluster-admin with role cluster admin
+  command: "kubectl create clusterrolebinding cluster-admin-rolebinding --clusterrole=cluster-admin --serviceaccount=default:cluster-admin"
+
+- name: Create token for cluster-admin sa
+  command: "kubectl create token cluster-admin"
+  register: cluster_admin_token
+
+- name: Echo token
+  debug:
+    msg: "{{ cluster_admin_token.stdout }}"
+
+- name: Echo console address
+  debug:
+    msg: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ service_nodeport.stdout }}"
+-
+

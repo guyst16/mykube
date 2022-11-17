@@ -2,7 +2,7 @@
 
 - hosts: all
   remote_user: liveuser
-  gather_facts: false
+  gather_facts: true
   roles:  
   - test
   - deploy-console
