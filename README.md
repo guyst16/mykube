@@ -18,6 +18,8 @@ $ ./start.sh
 
 And you done.
 
+* The script `start.sh` is reuseable which mean it will destrot the vm and create a new one if will executed again
+
 ### Delete and stop vm
 Run the next 2 commands
 ```
