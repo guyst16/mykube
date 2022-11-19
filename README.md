@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/100173467/202853618-622951f8-86e6-4234-8352-c77bd498e840.png" width="615" height="600">
-</p>
+![MyKube Logo](https://user-images.githubusercontent.com/100173467/202854244-a0b4d1c7-27a5-45f0-a2cb-b93615993c11.png)
 
 
 # k8s-installer - One-click k8s single-node cluster installation on your own device.
