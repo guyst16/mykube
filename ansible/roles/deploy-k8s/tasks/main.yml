@@ -191,19 +191,20 @@
     name: kubelet
     enabled: yes
 
-- name: Wait 30 seconds for the cluster to be ready
-  pause:
-    seconds: 30
-
 - name: Disable taint control-plane
   command: "kubectl taint node fedora node-role.kubernetes.io/control-plane-"
+  retries: 12
+  delay: 10
+  register: result
+  until: result.rc == 0
+
 
 - name: Aplly flanneld network plugin
   command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
 
-- name: Wait 40 seconds for the flanneld to be ready
-  pause:
-    seconds: 40
+- name: Wait for /opt/cni/bin to be created
+  wait_for:
+    path: /opt/cni/bin
 
 - name: Copy all container networking plugins binaries to /opt/cni/bin
   copy:
