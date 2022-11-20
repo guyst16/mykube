@@ -6,9 +6,6 @@ source ENV.sh
 echo -e "\nDownloading packages..."
 yum install -y $HOST_PACKAGES
 
-echo -e "\nStart sshd service..."
-systemctl start sshd
-
 echo -e "Start libvirtd service..."
 systemctl start libvirtd
 
