@@ -1,7 +1,33 @@
 #!/bin/bash
 
-echo -e "\nSource variables file"
+display_help()
+{
+   # Display Help
+   echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
+   echo
+   echo "Syntax: ./start [--help|no-console-deployment]"
+   echo 
+   echo "options:"
+   echo "--no-console-deployment  Disable console deployment."
+   echo "--help                   Print this Help."
+   echo
+}
+
+# Source variables
 source ENV.sh
+
+# Options
+if [[ $1 = "--help" ]];
+then	
+	display_help
+	exit 0;	
+elif [[ $1 = "--no-console-deployment" ]];
+then
+	K8S_CONSOLE_DEPLOYMENT="false"
+fi
+
+# Declare vars for the ansible playbook
+ANSIBLE_EXTRA_VARS="{\"k8s_console_deployment\":\"$K8S_CONSOLE_DEPLOYMENT\"}"
 
 echo -e "\nDownloading packages..."
 yum install -y $HOST_PACKAGES
@@ -59,5 +85,7 @@ ssh-keygen -f ~/.ssh/known_hosts -R $VM_IP_ADDRESS
 echo -e "\nInstall k8s module for ansible"
 ansible-galaxy collection install kubernetes.core
 
+echo $ANSIBLE_EXTRA_VARS
+
 echo -e "\nRun ansible-playbook for deploying k8s..."
-ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook install-k8.yaml -e "ansible_password=qwe123" -i $VM_IP_ADDRESS, -b
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook install-k8.yaml -e "ansible_password=qwe123" -i $VM_IP_ADDRESS, -b -e $ANSIBLE_EXTRA_VARS

@@ -16,3 +16,6 @@ VM_MEMORY="2048"
 VM_VCPUS="2"
 VM_DISK_PATH="/var/lib/libvirt/images/$VM_NAME.img"
 VM_DISK_SIZE="20"
+
+K8S_CONSOLE_DEPLOYMENT="true"
+

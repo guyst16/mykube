@@ -4,7 +4,8 @@
   remote_user: liveuser
   gather_facts: true
   roles:  
-  - deploy-k8s
-  - deploy-console
+  - role: deploy-k8s
+  - role: deploy-console
+    when: k8s_console_deployment is true
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
