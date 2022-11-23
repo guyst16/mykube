@@ -7,11 +7,8 @@
 # k8s-installer - One-click k8s single-node cluster installation on your own device.
 
 
-
-### About
-
-
 ![GitHub](https://img.shields.io/github/license/guyst16/mykube) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/guyst16/mykube) 
+
 MyKube is a new easy-to-use open source tool for creating your own virtual machine with k8s installed only by one click.
 
 All the dependencies are included, which means there are **no** previous steps that need to be taken.
