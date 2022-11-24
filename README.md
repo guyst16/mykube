@@ -9,6 +9,7 @@
 <div align="center">
   <img src="https://img.shields.io/github/license/guyst16/mykube">
   <img src="https://img.shields.io/github/languages/code-size/guyst16/mykube"> 
+  <img src="https://github.com/guyst16/mykube/workflows/Lint%20Code%20Base/badge.svg">
 </div>
 MyKube is a new easy-to-use open source tool for creating your own virtual machine with k8s installed only by one click.
 
