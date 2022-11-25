@@ -6,16 +6,14 @@
 
 # k8s-installer - One-click k8s single-node cluster installation on your own device.
 
-
-
-### About
-
-
-
-MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click.
+<div align="center">
+  <img src="https://img.shields.io/github/license/guyst16/mykube">
+  <img src="https://img.shields.io/github/languages/code-size/guyst16/mykube"> 
+  <img src="https://github.com/guyst16/mykube/workflows/Lint%20Code%20Base/badge.svg">
+</div>
+MyKube is a new easy-to-use open source tool for creating your own virtual machine with k8s installed only by one click.
 
 All the dependencies are included, which means there are **no** previous steps that need to be taken.
-
 
 
 ### How to Install
@@ -76,11 +74,11 @@ ssh liveuser@$(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}'
 
 #### (Compatibility) Linux kernel distributions:
 
-- [x] Fedora - 6.0.5-200.fc36.x86_64
+- [x] ![Fedora](https://img.shields.io/badge/Fedora-294172?style=for-the-badge&logo=fedora&logoColor=white) - `6.0.5-200.fc36.x86_64`
 
-- [ ] Ubuntu 
+- [ ] ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) 
 
-- [ ] Debian
+- [ ] ![Debian](https://img.shields.io/badge/Debian-D70A53?style=for-the-badge&logo=debian&logoColor=white)
 
 
 
