@@ -56,8 +56,7 @@
     enabled: yes
     daemon_reload: yes
 
-# noqa: latest
-- name: Git clone container networking plugins
+- name: Git clone container networking plugins # noqa: latest
   ansible.builtin.git:
     repo: "https://github.com/containernetworking/plugins.git"
     dest: "/tmp/network-plugins"
