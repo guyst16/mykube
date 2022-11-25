@@ -16,27 +16,23 @@
 
 - name: Install containerd.io
   ansible.builtin.yum:
-    name: containerd.io
+    name: containerd.io-1.6.10
     state: latest
-    update_only: true
 
 - name: Install go
   ansible.builtin.yum:
-    name: go
+    name: golang-1.18.8
     state: latest
-    update_only: true
 
 - name: Install git
   ansible.builtin.yum:
-    name: git
+    name: git-2.38.1
     state: latest
-    update_only: true
 
 - name: Install libselinux-python3
   ansible.builtin.yum:
-    name: libselinux-python3
+    name: python3-libselinux-3.3
     state: latest
-    update_only: true
 
 - name: Get Containerd default config file
   ansible.builtin.command: "containerd config default"
@@ -44,7 +40,7 @@
 
 - name: Copy default Containerd config to /etc/containerd/config.toml
   ansible.builtin.template: 
-    src: "containerd.confa.j2"
+    src: "containerd.conf.j2"
     dest: "/etc/containerd/config.toml"
     mode: 0644
 
