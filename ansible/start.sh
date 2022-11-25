@@ -14,6 +14,7 @@ display_help()
 }
 
 # Source variables
+# shellcheck source=ENV.sh
 source ENV.sh
 
 # Options
