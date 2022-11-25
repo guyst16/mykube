@@ -15,59 +15,41 @@ MyKube is a new easy-to-use open source tool for creating your own virtual machi
 
 All the dependencies are included, which means there are **no** previous steps that need to be taken.
 
-
-### How to Install
-
-
+### How to Use
 
 > All steps are made on `Linux fedora 5.19.4-200.fc36.x86_64`
-
-
 
 Run the next commands for deploying k8s single-node cluster installation:
 
 ```
-
 $ git clone https://github.com/guyst16/mykube.git
-
 $ cd mykube/ansible
-
 $ ./start.sh
-
 ```
-
-
 
 And you done.
 
-
-
 * The script `start.sh` is reuseable, which means it will destroy the vm and create a new one if re-executed
 
+### Need some help?
 
+Ask for help:
+![Screenshot from 2022-11-25 23-07-36](https://user-images.githubusercontent.com/100173467/204055422-34611a6b-52be-4219-9832-2015f34693cd.png)
 
-### Delete and stop vm
+### Delete vm
 
-Run the next 2 commands
+Run the next command:
 
 ```
-
-$ virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM
-
+$ ./start --delete
 ```
-
-
 
 ### Quick ssh to vm
 
 Run the command:
 
 ```
-
-$ sshpass -p qwe123 \
-
-ssh liveuser@$(virsh domifaddr --domain myFedoraVM | grep ':' | awk '{print $4}' | cut -d'/' -f1)
-
+$ ./start --connect
 ```
 
 
