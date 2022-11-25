@@ -30,7 +30,7 @@ display_help()
     echo
     echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
     echo
-    echo "Syntax: ./start [--help|no-console-deployment]"
+    echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy]"
     echo
     echo "options:"
     echo "--no-console-deployment  Disable console deployment."
