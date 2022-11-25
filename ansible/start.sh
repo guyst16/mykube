@@ -1,30 +1,86 @@
 #!/bin/bash
 
-display_help()
-{
-    # Display Help
-    echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
-    echo
-    echo "Syntax: ./start [--help|no-console-deployment]"
-    echo
-    echo "options:"
-    echo "--no-console-deployment  Disable console deployment."
-    echo "--help                   Print this Help."
-    echo
-}
-
 # Source variables
 # shellcheck source=/dev/null
 source ENV.sh
 
+display_logo()
+{
+    echo '                                                        '
+    echo ' ||\      /|| \\  //      || //  ||   ||  ||==\\  ||===='
+    echo ' ||\\    //||  \\//       ||//   ||   ||  ||   || ||____'
+    echo ' || \\  // ||   ||        ||\\   ||   ||  ||== // ||    '
+    echo ' ||  \\//  ||   ||        || \\  \\===//  ||___)) ||===='
+    echo '                                                        '
+    echo '                             ^                          '
+    echo '                           xxxxx                        '
+    echo '                         xxxxxxxxx                      '
+    echo '                       xxxxxxxxxxxxx                    '
+    echo '                     xxxxxxxxxxxxxxxxx                  '
+    echo '                    x  xxxxxxxxxxxxx  x                 '
+    echo '                    xxx  xxxxxxxxx  xxx                 '
+    echo '                    xxxxx  xxxxx   xxxx                 '
+    echo '                    xxxxxxx  x   xxxxxx                 '
+    echo '                    xxxxxxxxx xxxxxxxxx                 '
+    echo '                     xxxxxxxx xxxxxxxx                  '
+    echo '                       xxxxxx xxxxxx                    '
+    echo '                         xxxx xxxx                      '
+    echo '                           xx xx                        '
+}
+
+display_help()
+{
+    # Display Help
+    display_logo
+    echo
+    echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
+    echo
+    echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy|--connect]"
+    echo
+    echo "options:"
+    echo "--no-console-deployment  Disable console deployment."
+    echo "--destroy                Destroy existing vms"
+    echo "--connect                Connect to vm"
+    echo "--help|-h                Print this Help."
+    echo
+}
+
+# Destroy existing vms
+destroy_vms()
+{
+    virsh destroy "$VM_NAME";
+    virsh undefine --remove-all-storage "$VM_NAME";
+}
+
+# Connect to vm
+connect_to_vm()
+{
+    sshpass -p qwe123 \
+        ssh liveuser@"$(virsh domifaddr --domain "$VM_NAME" | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
+}
+
 # Options
-if [[ $1 = "--help" ]];
+if [[ $1 = "--help" ]] || [[ $1 = "-h" ]];
 then
     display_help
     exit 0;
 elif [[ $1 = "--no-console-deployment" ]];
 then
     K8S_CONSOLE_DEPLOYMENT="false"
+elif [[ $1 = "--destroy" ]];
+then
+    destroy_vms
+    exit 0;
+elif [[ $1 = "--connect" ]];
+then
+    connect_to_vm
+    exit 0;
+elif [[ $1 != "" ]];
+then
+    display_help
+    echo
+    echo "argument $1 not found!"
+    exit 0;
 fi
 
 # Declare vars for the ansible playbook
@@ -57,7 +113,7 @@ fi
 
 
 echo -e "\nTry deleting '$VM_NAME' if exists..."
-virsh destroy "$VM_NAME"; virsh undefine --remove-all-storage "$VM_NAME"
+destroy_vms
 
 echo -e "\nCheck if default network is activated"
 if virsh net-info --network default | grep Active | grep -q yes; then
