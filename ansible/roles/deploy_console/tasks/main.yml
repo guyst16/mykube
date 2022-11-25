@@ -28,5 +28,3 @@
 - name: Echo console address
   ansible.builtin.debug:
     msg: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ service_nodeport.stdout }}"
--
-
