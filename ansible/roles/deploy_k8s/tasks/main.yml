@@ -1,7 +1,7 @@
 ---
 # tasks file for test
 
-- name: wait for connection to host for 20 mins
+- name: Wait for connection to host for 20 mins
   ansible.builtin.wait_for_connection:
     timeout: 1200
 
@@ -11,7 +11,7 @@
     state: latest
 
 - name: Add docker-ce repository
-  command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
+  ansible.builtin.command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
 
 - name: Install containerd.io
   ansible.builtin.yum:
@@ -35,11 +35,11 @@
 
 - name: Get Containerd default config file
   ansible.builtin.command: "containerd config default"
-  register: Default_containerd_config
+  register: default_containerd_config
 
 - name: Copy default Containerd config to /etc/containerd/config.toml
-  ansible.builtin.copy: 
-    content: "{{ Default_containerd_config.stdout }}"
+  ansible.builtin.template: 
+    src: "containerd.confa.j2"
     dest: "/etc/containerd/config.toml"
 
 - name: Enable SystemdCgroup inside /etc/containerd/config.toml
