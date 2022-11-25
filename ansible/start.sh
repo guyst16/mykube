@@ -56,7 +56,7 @@ destroy_vms()
 connect_to_vm()
 {
     sshpass -p qwe123 \
-        ssh liveuser@"$(virsh domifaddr --domain $VM_NAME | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
+        ssh liveuser@"$(virsh domifaddr --domain "$VM_NAME" | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
 }
 
 # Options
