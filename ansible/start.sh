@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Source variables
+# shellcheck source=/dev/null
+source ENV.sh
+
 display_logo()
 {
     echo '                                                        '
@@ -30,11 +35,12 @@ display_help()
     echo
     echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
     echo
-    echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy]"
+    echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy|--connect]"
     echo
     echo "options:"
     echo "--no-console-deployment  Disable console deployment."
     echo "--destroy                Destroy existing vms"
+    echo "--connect                Connect to vm"
     echo "--help|-h                Print this Help."
     echo
 }
@@ -42,12 +48,16 @@ display_help()
 # Destroy existing vms
 destroy_vms()
 {
-    virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM;
+    virsh destroy $VM_NAME;
+    virsh undefine --remove-all-storage $VM_NAME;
 }
 
-# Source variables
-# shellcheck source=/dev/null
-source ENV.sh
+# Connect to vm
+connect_to_vm()
+{
+    sshpass -p qwe123 \
+        ssh liveuser@$(virsh domifaddr --domain $VM_NAME | grep ':' | awk '{print $4}' | cut -d'/' -f1)
+}
 
 # Options
 if [[ $1 = "--help" ]] || [[ $1 = "-h" ]];
@@ -60,6 +70,10 @@ then
 elif [[ $1 = "--destroy" ]];
 then
     destroy_vms
+    exit 0;
+elif [[ $1 = "--connect" ]];
+then
+    connect_to_vm
     exit 0;
 elif [[ $1 != "" ]];
 then
