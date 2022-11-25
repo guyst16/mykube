@@ -48,15 +48,15 @@ display_help()
 # Destroy existing vms
 destroy_vms()
 {
-    virsh destroy $VM_NAME;
-    virsh undefine --remove-all-storage $VM_NAME;
+    virsh destroy "$VM_NAME";
+    virsh undefine --remove-all-storage "$VM_NAME";
 }
 
 # Connect to vm
 connect_to_vm()
 {
     sshpass -p qwe123 \
-        ssh liveuser@$(virsh domifaddr --domain $VM_NAME | grep ':' | awk '{print $4}' | cut -d'/' -f1)
+        ssh liveuser@"$(virsh domifaddr --domain $VM_NAME | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
 }
 
 # Options
