@@ -1,3 +1,5 @@
+---
+
 galaxy_info:
   author: Guy Steinberger
   description: Deploy basic console containers over k8s with cluster-admin service account for information gathering
