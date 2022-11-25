@@ -1,0 +1,30 @@
+---
+# tasks file for deploy-console
+
+- name: Deploy console
+  ansible.builtin.command: "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml"
+
+- name: Patch console service to NodePort type
+  ansible.builtin.command: "kubectl patch service -n kubernetes-dashboard kubernetes-dashboard  --patch '{\"spec\": {\"type\": \"NodePort\"}}'"
+
+- name: Get console service NodePort
+  ansible.builtin.command: "kubectl get service -n kubernetes-dashboard kubernetes-dashboard  -o jsonpath='{.spec.ports[].nodePort}'"
+  register: service_nodeport  
+
+- name: Create cluster-admin sa
+  ansible.builtin.command: "kubectl create sa cluster-admin --namespace=default"
+
+- name: Create rolebinding for sa cluster-admin with role cluster admin
+  ansible.builtin.command: "kubectl create clusterrolebinding cluster-admin-rolebinding --clusterrole=cluster-admin --serviceaccount=default:cluster-admin"
+
+- name: Create token for cluster-admin sa
+  ansible.builtin.command: "kubectl create token cluster-admin"
+  register: cluster_admin_token
+
+- name: Echo token
+  ansible.builtin.debug:
+    msg: "{{ cluster_admin_token.stdout }}"
+
+- name: Echo console address
+  ansible.builtin.debug:
+    msg: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ service_nodeport.stdout }}"

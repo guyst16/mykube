@@ -1,73 +1,73 @@
 ---
 # tasks file for test
 
-- name: wait for connection to host for 20 mins
-  wait_for_connection:
+- name: Wait for connection to host for 20 mins
+  ansible.builtin.wait_for_connection:
     timeout: 1200
 
 - name: Upgrade all packages
-  yum:
+  ansible.builtin.yum:
     name: '*'
     state: latest
+    update_only: true
 
 - name: Add docker-ce repository
-  command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
+  ansible.builtin.command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
 
 - name: Install containerd.io
-  yum:
-    name: containerd.io
-    state: latest
+  ansible.builtin.yum:
+    name: containerd.io-1.6.10
+    state: present
 
 - name: Install go
-  yum:
-    name: go
-    state: latest
+  ansible.builtin.yum:
+    name: golang-1.18.8
+    state: present
 
 - name: Install git
-  yum:
-    name: git
-    state: latest
+  ansible.builtin.yum:
+    name: git-2.38.1
+    state: present
 
 - name: Install libselinux-python3
-  yum:
-    name: libselinux-python3
-    state: latest
+  ansible.builtin.yum:
+    name: python3-libselinux-3.3
+    state: present
 
 - name: Get Containerd default config file
-  command: "containerd config default"
-  register: Default_containerd_config
-
-- debug:
-    msg: "{{ Default_containerd_config.stdout }}"
+  ansible.builtin.command: "containerd config default"
+  register: default_containerd_config
 
 - name: Copy default Containerd config to /etc/containerd/config.toml
-  copy: 
-    content: "{{ Default_containerd_config.stdout }}"
+  ansible.builtin.template: 
+    src: "containerd.conf.j2"
     dest: "/etc/containerd/config.toml"
+    mode: 0644
 
 - name: Enable SystemdCgroup inside /etc/containerd/config.toml
-  replace:
+  ansible.builtin.replace:
     path: /etc/containerd/config.toml
     regexp: 'SystemdCgroup = false'
     replace: 'SystemdCgroup = true'
 
 - name: Restart & enable Containerd and daemon reload
-  systemd:
+  ansible.builtin.systemd:
     name: containerd
     state: restarted
     enabled: yes
     daemon_reload: yes
 
-- name: Git clone container networking plugins
-  git:
+- name: Git clone container networking plugins # noqa: latest
+  ansible.builtin.git:
     repo: "https://github.com/containernetworking/plugins.git"
     dest: "/tmp/network-plugins"
+    version: HEAD
 
 - name: Create all container networking plugins binaries
-  command: "sh /tmp/network-plugins/build_linux.sh"
+  ansible.builtin.command: "sh /tmp/network-plugins/build_linux.sh"
 
 - name: Add kubernetes repository
-  yum_repository:
+  ansible.builtin.yum_repository:
     name: kubernetes
     description: k8s-packages
     baseurl: 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch'
@@ -77,104 +77,106 @@
     exclude: kubelet kubeadm kubectl
 
 - name: Set Selinux to permissive right now
-  command: "setenforce 0"
+  ansible.builtin.command: "setenforce 0"
 
 - name: Set selinux to permissive in /etc/selinux/config
-  replace:
+  ansible.builtin.replace:
     path: /etc/selinux/config
     regexp: '^SELINUX=enforcing$'
     replace: 'SELINUX=permissive'
 
 - name: Insert modules for k8s
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/modules-load.d/k8s.conf
     create: yes
+    mode: 0644
     block: |
       overlay
       br_netfilter
 
 - name: Modprobe overlay
-  modprobe:
+  community.general.modprobe:
     name: overlay
     state: present
 
 - name: Modprobe br_netfilter
-  modprobe:
+  community.general.modprobe:
     name: br_netfilter
     state: present
 
 - name: Insert sysctl configuration for k8s
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/sysctl.d/k8s.conf
     create: yes
+    mode: 0644
     block: |
       net.bridge.bridge-nf-call-iptables  = 1
       net.bridge.bridge-nf-call-ip6tables = 1
       net.ipv4.ip_forward                 = 1
 
 - name: Aplly sysctl changes
-  command: "sysctl --system"
+  ansible.builtin.command: "sysctl --system"
 
 - name: Restart dbus
-  systemd:
+  ansible.builtin.systemd:
     name: dbus
     state: restarted
    
 - name: Restart & enable firewalld
-  systemd:
+  ansible.builtin.systemd:
     name: firewalld
     state: restarted
     enabled: yes
 
 - name: Enable port 6443 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 6443/tcp
     permanent: yes
     state: enabled
 
 - name: Enable ports 2379-2380 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 2379-2380/tcp
     permanent: yes
     state: enabled
 
 - name: Enable ports 10250-10252 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 10250-10252/tcp
     permanent: yes
     state: enabled
 
 - name: Enable port 10255 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 10255/tcp
     permanent: yes
     state: enabled
 
 - name: Enable port 8472 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 8472/udp
     permanent: yes
     state: enabled
 
 - name: Enable ports 30000-32767 in firewall
-  firewalld:
+  ansible.posix.firewalld:
     port: 30000-32767/tcp
     permanent: yes
     state: enabled
 
 - name: Enable masquerade in zone
-  firewalld:
+  ansible.posix.firewalld:
     masquerade: true
     permanent: yes
     state: enabled
 
 - name: Restart firewalld
-  systemd:
+  ansible.builtin.systemd:
     name: firewalld
     state: restarted
 
 - name: Install kubeadm, kubelet & kubectl
-  yum:
+  ansible.builtin.yum:
     name: "{{ packages }}"
     disable_excludes: kubernetes
   vars:
@@ -184,15 +186,15 @@
     - kubectl
 
 - name: Install k8s cluster
-  command: "kubeadm init --pod-network-cidr=10.244.0.0/16"
+  ansible.builtin.command: "kubeadm init --pod-network-cidr=10.244.0.0/16"
 
 - name: Enable kubelet
-  systemd:
+  ansible.builtin.systemd:
     name: kubelet
     enabled: yes
 
 - name: Disable taint control-plane
-  command: "kubectl taint node fedora node-role.kubernetes.io/control-plane-"
+  ansible.builtin.command: "kubectl taint node fedora node-role.kubernetes.io/control-plane-"
   retries: 12
   delay: 10
   register: result
@@ -200,21 +202,22 @@
 
 
 - name: Aplly flanneld network plugin
-  command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
+  ansible.builtin.command: "kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml"
 
 - name: Wait for /opt/cni/bin to be created
-  wait_for:
+  ansible.builtin.wait_for:
     path: /opt/cni/bin
 
 - name: Copy all container networking plugins binaries to /opt/cni/bin
-  copy:
+  ansible.builtin.copy:
     src: /tmp/network-plugins/bin/
     dest: /opt/cni/bin
+    mode: 0744
     remote_src: yes
     directory_mode: yes
 
-- name: Chmod 777 the /opt/cni/bin files
-  file:
+- name: Chmod 0744 the /opt/cni/bin files
+  ansible.builtin.file:
     path: /opt/cni/bin
-    mode: 777
+    mode: 0744
     recurse: yes
