@@ -9,6 +9,7 @@
   ansible.builtin.yum:
     name: '*'
     state: latest
+    update_only: true
 
 - name: Add docker-ce repository
   ansible.builtin.command: "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
@@ -17,21 +18,25 @@
   ansible.builtin.yum:
     name: containerd.io
     state: latest
+    update_only: true
 
 - name: Install go
   ansible.builtin.yum:
     name: go
     state: latest
+    update_only: true
 
 - name: Install git
   ansible.builtin.yum:
     name: git
     state: latest
+    update_only: true
 
 - name: Install libselinux-python3
   ansible.builtin.yum:
     name: libselinux-python3
     state: latest
+    update_only: true
 
 - name: Get Containerd default config file
   ansible.builtin.command: "containerd config default"
