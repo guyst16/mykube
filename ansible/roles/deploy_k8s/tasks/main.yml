@@ -41,6 +41,7 @@
   ansible.builtin.template: 
     src: "containerd.confa.j2"
     dest: "/etc/containerd/config.toml"
+    mode: 0644
 
 - name: Enable SystemdCgroup inside /etc/containerd/config.toml
   ansible.builtin.replace:
@@ -86,6 +87,7 @@
   ansible.builtin.blockinfile:
     path: /etc/modules-load.d/k8s.conf
     create: yes
+    mode: 0644
     block: |
       overlay
       br_netfilter
@@ -210,8 +212,8 @@
     remote_src: yes
     directory_mode: yes
 
-- name: Chmod 777 the /opt/cni/bin files
-  file:
+- name: Chmod 0744 the /opt/cni/bin files
+  ansible.builtin.file:
     path: /opt/cni/bin
-    mode: 777
+    mode: 0744
     recurse: yes
