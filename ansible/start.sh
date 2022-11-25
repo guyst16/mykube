@@ -34,8 +34,15 @@ display_help()
     echo
     echo "options:"
     echo "--no-console-deployment  Disable console deployment."
-    echo "--help                   Print this Help."
+    echo "--destroy                Destroy existing vms"
+    echo "--help|-h                Print this Help."
     echo
+}
+
+# Destroy existing vms
+destroy_vms()
+{
+    virsh destroy myFedoraVM; virsh undefine --remove-all-storage myFedoraVM;
 }
 
 # Source variables
@@ -50,6 +57,10 @@ then
 elif [[ $1 = "--no-console-deployment" ]];
 then
     K8S_CONSOLE_DEPLOYMENT="false"
+elif [[ $1 = "--destroy" ]];
+then
+    destroy_vms
+    exit 0;
 elif [[ $1 != "" ]];
 then
     display_help
@@ -88,7 +99,7 @@ fi
 
 
 echo -e "\nTry deleting '$VM_NAME' if exists..."
-virsh destroy "$VM_NAME"; virsh undefine --remove-all-storage "$VM_NAME"
+destroy_vms
 
 echo -e "\nCheck if default network is activated"
 if virsh net-info --network default | grep Active | grep -q yes; then
