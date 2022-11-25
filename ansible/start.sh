@@ -14,7 +14,7 @@ display_help()
 }
 
 # Source variables
-# shellcheck source=ENV.sh
+# shellcheck source=/dev/null
 source ENV.sh
 
 # Options
