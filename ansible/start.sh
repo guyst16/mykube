@@ -50,7 +50,8 @@ then
 elif [[ $1 = "--no-console-deployment" ]];
 then
     K8S_CONSOLE_DEPLOYMENT="false"
-else
+elif [[ $1 != "" ]];
+then
     display_help
     echo
     echo "argument $1 not found!"
