@@ -1,8 +1,33 @@
 #!/bin/bash
+display_logo()
+{
+    echo '                                                        '
+    echo ' ||\      /|| \\  //      || //  ||   ||  ||==\\  ||===='
+    echo ' ||\\    //||  \\//       ||//   ||   ||  ||   || ||____'
+    echo ' || \\  // ||   ||        ||\\   ||   ||  ||== // ||    '
+    echo ' ||  \\//  ||   ||        || \\  \\===//  ||___)) ||===='
+    echo '                                                        '
+    echo '                             ^                          '
+    echo '                           xxxxx                        '
+    echo '                         xxxxxxxxx                      '
+    echo '                       xxxxxxxxxxxxx                    '
+    echo '                     xxxxxxxxxxxxxxxxx                  '
+    echo '                    x  xxxxxxxxxxxxx  x                 '
+    echo '                    xxx  xxxxxxxxx  xxx                 '
+    echo '                    xxxxx  xxxxx   xxxx                 '
+    echo '                    xxxxxxx  x   xxxxxx                 '
+    echo '                    xxxxxxxxx xxxxxxxxx                 '
+    echo '                     xxxxxxxx xxxxxxxx                  '
+    echo '                       xxxxxx xxxxxx                    '
+    echo '                         xxxx xxxx                      '
+    echo '                           xx xx                        '
+}
 
 display_help()
 {
     # Display Help
+    display_logo
+    echo
     echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
     echo
     echo "Syntax: ./start [--help|no-console-deployment]"
@@ -18,13 +43,18 @@ display_help()
 source ENV.sh
 
 # Options
-if [[ $1 = "--help" ]];
+if [[ $1 = "--help" ]] || [[ $1 = "-h" ]];
 then
     display_help
     exit 0;
 elif [[ $1 = "--no-console-deployment" ]];
 then
     K8S_CONSOLE_DEPLOYMENT="false"
+else
+    display_help
+    echo
+    echo "argument $1 not found!"
+    exit 0;
 fi
 
 # Declare vars for the ansible playbook
