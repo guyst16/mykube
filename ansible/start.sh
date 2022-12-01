@@ -28,6 +28,17 @@ display_logo()
     echo '                           xx xx                        '
 }
 
+# Show options
+options_display()
+{
+    echo "options:"
+    echo "--no-console-deployment  Disable console deployment."
+    echo "--destroy                Destroy existing vms"
+    echo "--connect                Connect to vm"
+    echo "--help|-h                Print this Help."
+  exit 2
+}
+
 display_help()
 {
     # Display Help
@@ -37,12 +48,7 @@ display_help()
     echo
     echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy|--connect]"
     echo
-    echo "options:"
-    echo "--no-console-deployment  Disable console deployment."
-    echo "--destroy                Destroy existing vms"
-    echo "--connect                Connect to vm"
-    echo "--help|-h                Print this Help."
-    echo
+    options_display
 }
 
 # Destroy existing vms
@@ -60,26 +66,40 @@ connect_to_vm()
 }
 
 # Options
-if [[ $1 = "--help" ]] || [[ $1 = "-h" ]];
-then
-    display_help
-    exit 0;
-elif [[ $1 = "--no-console-deployment" ]];
-then
-    K8S_CONSOLE_DEPLOYMENT="false"
-elif [[ $1 = "--destroy" ]];
-then
-    destroy_vms
-    exit 0;
-elif [[ $1 = "--connect" ]];
-then
-    connect_to_vm
-    exit 0;
-elif [[ $1 != "" ]];
-then
-    display_help
-    echo
-    echo "argument $1 not found!"
+OPTIONS=$(getopt -o h --long help,connect,destroy,no-console-deploymentg -- "$@")
+
+VALID_ARGUMENTS=$?
+if [ "$VALID_ARGUMENTS" != "0" ]; then
+  options_display
+fi
+
+eval set -- "$OPTIONS"
+while true; do
+    case "$1" in
+        -h | --help ) # Display help
+            display_help
+            exit 0;;
+        --connect ) # Connect to vm
+            connect_to_vm
+            exit 0;;
+        --destroy ) # Destroy vm
+            destroy_vms
+            exit 0;;
+        --no-console-deployment ) # Deploy k8s without a console
+             K8S_CONSOLE_DEPLOYMENT="false"
+             shift;;
+        # -- means the end of the arguments; drop this, and break out of the while loop
+        -- ) shift; break;;
+        * )  # Invalid option
+            echo "argument $1 not found!"
+            usage;;
+    esac
+done
+
+# Validate there no unused arguments, else fail program
+if [ "$#" != 0 ] ; then
+    echo "Error: No arguments are allowed"
+    options_display
     exit 0;
 fi
 
