@@ -6,26 +6,29 @@ source ENV.sh
 
 display_logo()
 {
-    echo '                                                        '
-    echo ' ||\      /|| \\  //      || //  ||   ||  ||==\\  ||===='
-    echo ' ||\\    //||  \\//       ||//   ||   ||  ||   || ||____'
-    echo ' || \\  // ||   ||        ||\\   ||   ||  ||== // ||    '
-    echo ' ||  \\//  ||   ||        || \\  \\===//  ||___)) ||===='
-    echo '                                                        '
-    echo '                             ^                          '
-    echo '                           xxxxx                        '
-    echo '                         xxxxxxxxx                      '
-    echo '                       xxxxxxxxxxxxx                    '
-    echo '                     xxxxxxxxxxxxxxxxx                  '
-    echo '                    x  xxxxxxxxxxxxx  x                 '
-    echo '                    xxx  xxxxxxxxx  xxx                 '
-    echo '                    xxxxx  xxxxx   xxxx                 '
-    echo '                    xxxxxxx  x   xxxxxx                 '
-    echo '                    xxxxxxxxx xxxxxxxxx                 '
-    echo '                     xxxxxxxx xxxxxxxx                  '
-    echo '                       xxxxxx xxxxxx                    '
-    echo '                         xxxx xxxx                      '
-    echo '                           xx xx                        '
+    echo "                                                         "
+    echo "     __  __  __   __    _  __  _   _   ____    _____     "
+    echo "    |  \/  | \ \ / /   | |/ / | | | | | __ )  | ____|    "
+    echo "    | |\/| |  \ V /    | ' /  | | | | |  _ \  |  _|      "
+    echo "    | |  | |   | |     | . \  | |_| | | |_) | | |___     "
+    echo "    |_|  |_|   |_|     |_|\_\  \___/  |____/  |_____|    "
+    echo "                                                         "
+    echo "                         %%%%%%%%                        "
+    echo "                     #%%%%%%%%%%%%%%#                    "
+    echo "                  %%%%%%%%%%%%%%%%%%%%%%                 "
+    echo "              %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%             "
+    echo "               #%%%%%%%%%%%%%%%%%%%%%%%%%%%              "
+    echo "            %%%    %%%%%%%%%%%%%%%%%%%%,   %%%           "
+    echo "            %%%%%%.   %%%%%%%%%%%%%%    %%%%%%           "
+    echo "            %%%%%%%%%%   (%%%%%%%   #%%%%%%%%%           "
+    echo "            %%%%%%%%%%%%%        %%%%%%%%%%%%%           "
+    echo "            %%%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%%           "
+    echo "            %%%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%%           "
+    echo "             #%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%            "
+    echo "                 %%%%%%%%%%%  %%%%%%%%%%%                "
+    echo "                    %%%%%%%%  %%%%%%%%                   "
+    echo "                       /%%%%  %%%%(                      "
+    echo "                           %  %                          "
 }
 
 # Show options
