@@ -34,7 +34,7 @@ And you done.
 ### Need some help?
 
 Ask for help:
-![Screenshot from 2022-11-25 23-07-36](https://user-images.githubusercontent.com/100173467/204055422-34611a6b-52be-4219-9832-2015f34693cd.png)
+![image](https://user-images.githubusercontent.com/100173467/205354613-96090430-5a85-4bc0-8c69-ebab4f3fb30e.png)
 
 ### Delete vm
 
