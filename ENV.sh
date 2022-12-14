@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export HOST_PACKAGES="ansible qemu-kvm qemu-img libvirt python3-libvirt libvirt-client virt-install virt-viewer bridge-utils"
-
 export OS_ISO_PATH="/var/lib/libvirt/images"
 export OS_ISO_FULL_PATH="/var/lib/libvirt/images/Fedora-Server-dvd-x86_64-36-1.5.iso"
 export OS_ISO_URL="https://download.fedoraproject.org/pub/fedora/linux/releases/36/Server/x86_64/iso/Fedora-Server-dvd-x86_64-36-1.5.iso"
