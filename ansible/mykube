@@ -159,8 +159,16 @@ virt-install -n "$VM_NAME" \
     --wait=-1
 
 # Waiting for IP address
-echo -e "\nWait 20 seconds for IP address to get assigned..."
-sleep 20
+echo -e "\nWait for IP address to get assigned..."
+validate_ip=$(virsh domifaddr --domain myFedoraVM 2> /dev/null)
+while [[ "$validate_ip" == "" ]];
+do
+    echo IP not exists
+    sleep 1
+    validate_ip=$(virsh domifaddr --domain myFedoraVM 2> /dev/null)
+done
+echo -e "IP address assigned"
+
 
 # VM IP address
 echo -e "Find IP address"
