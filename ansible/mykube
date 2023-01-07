@@ -3,12 +3,15 @@
 # Source variables
 # shellcheck source=/dev/null
 MYKUBE_DIR="/usr/share/mykube"
+EXISTS_GREEN="\033[38;2;0;255;02mexists\033[m"
+ACTIVATED_GREEN="\033[38;2;0;255;02mactivated\033[m"
+CREATED_GREEN="\033[38;2;0;255;02mcreated\033[m"
+DELETING_RED="\033[38;2;255;0;02mDeleting\033[m"
 
 source "$MYKUBE_DIR/ENV.sh"
 
 display_logo()
 {
-    echo "                                                         "
     echo "     __  __  __   __    _  __  _   _   ____    _____     "
     echo "    |  \/  | \ \ / /   | |/ / | | | | | __ )  | ____|    "
     echo "    | |\/| |  \ V /    | ' /  | | | | |  _ \  |  _|      "
@@ -41,7 +44,6 @@ options_display()
     echo "--destroy                Destroy existing vms"
     echo "--connect                Connect to vm"
     echo "--help|-h                Print this Help."
-  exit 2
 }
 
 display_help()
@@ -59,8 +61,8 @@ display_help()
 # Destroy existing vms
 destroy_vms()
 {
-    virsh destroy "$VM_NAME";
-    virsh undefine --remove-all-storage "$VM_NAME";
+    virsh destroy "$VM_NAME" &> /dev/null;
+    virsh undefine --remove-all-storage "$VM_NAME" &> /dev/null;
 }
 
 # Connect to vm
@@ -68,6 +70,20 @@ connect_to_vm()
 {
     sshpass -p qwe123 \
         ssh -o StrictHostKeyChecking=accept-new liveuser@"$(virsh domifaddr --domain "$VM_NAME" | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
+}
+
+# Loading bar for a long command
+loading_bar()
+{
+    load=("\\" "|" "/" "-")
+    while kill -0 $PID 2> /dev/null;
+    do
+	    for l in "${load[@]}";
+	    do
+		    echo -ne "$l \r"
+		    sleep 0.15
+	    done
+    done
 }
 
 # Options
@@ -111,12 +127,9 @@ fi
 # Declare vars for the ansible playbook
 ANSIBLE_EXTRA_VARS="{'k8s_console_deployment':'$K8S_CONSOLE_DEPLOYMENT'}"
 
-echo -e "Start libvirtd service..."
-systemctl start libvirtd
-
-echo -e "\nValidate that $OS_ISO_SHORT_NAME image is ready..."
+echo -e "Validate that $OS_ISO_SHORT_NAME image is ready..."
 if [ -f "$OS_ISO_FULL_PATH" ]; then
-    echo -e "$OS_ISO_SHORT_NAME iso file exists"
+    echo -e "$OS_ISO_SHORT_NAME iso file $EXISTS_GREEN"
 else
     echo -e "File not exists\nStart download $OS_ISO_SHORT_NAME iso file..."
     wget "$OS_ISO_URL" -P "$OS_ISO_PATH"
@@ -125,24 +138,27 @@ fi
 
 echo -e "\nValidate that $OS_ISO_SHORT_NAME os exists in osdb-info..."
 if (osinfo-query os | grep -iq "$OS_ISO_SHORT_NAME"); then
-    echo -e "$OS_ISO_SHORT_NAME os exists"
+    echo -e "$OS_ISO_SHORT_NAME os $EXISTS_GREEN"
 else
-    echo -e "$OS_ISO_SHORT_NAME os does not exists\nStart  updating OS..."
+    echo -e "$OS_ISO_SHORT_NAME os does not exist\nStart  updating OS..."
     wget "$OS_INFO_DB_URL"
     osinfo-db-import "$OS_INFO_DB_FILE"
     echo -e "OS db updated"
 fi
 
 
-echo -e "\nTry deleting '$VM_NAME' if exists..."
-destroy_vms
-
+# Validate VM $EXISTS_GREEN
+if (virsh list --all --name | grep -q "$VM_NAME"); then
+    echo -e "$DELETING_RED old '$VM_NAME'"
+    destroy_vms
+fi 
 echo -e "\nCheck if default network is activated"
 if virsh net-info --network default | grep Active | grep -q yes; then
-    echo -e "default network is activated"
+    echo -e "default network is $ACTIVATED_GREEN"
 else
     echo -e "default network is not activated\nActivating default network"
     virsh net-start default;
+    echo -e "default network is $ACTIVATED_GREEN"
 fi
 
 echo -e "\nStart deploying the new vm..."
@@ -156,14 +172,19 @@ virt-install -n "$VM_NAME" \
     --initrd-inject=$MYKUBE_DIR/ks.cfg \
     --extra-args='inst.ks=file:/ks.cfg console=tty0 console=ttyS0,115200n8' \
     --noautoconsole \
-    --wait=-1
+    --wait=-1 \
+    --quiet & PID=$!
+
+loading_bar "$PID"
+
+echo -ne "VM $CREATED_GREEN"
 
 # Waiting for IP address
-echo -e "\nWait for IP address to get assigned..."
+echo -e "Wait for IP address to get assigned..."
 validate_ip=$(virsh domifaddr --domain myFedoraVM 2> /dev/null)
 while [[ "$validate_ip" == "" ]];
 do
-    echo IP not exists
+    echo "IP not exists"
     sleep 1
     validate_ip=$(virsh domifaddr --domain myFedoraVM 2> /dev/null)
 done
@@ -180,15 +201,21 @@ echo -e "IP address is: $VM_IP_ADDRESS"
 
 # Delete ssh fingerprint if exists
 echo -e "Delete fingerprint from ~/.ssh/known_hosts if exists..."
-ssh-keygen -f ~/.ssh/known_hosts -R "$VM_IP_ADDRESS"
+if (grep -q "$VM_IP_ADDRESS" ~/.ssh/known_hosts);
+then
+    ssh-keygen -f ~/.ssh/known_hosts -R "$VM_IP_ADDRESS"
+fi
 
 echo -e "\nInstall k8s module for ansible"
-ansible-galaxy collection install kubernetes.core
-
-echo "$ANSIBLE_EXTRA_VARS"
+ansible-galaxy collection install kubernetes.core &> /dev/null
 
 echo -e "\nRun ansible-playbook for deploying k8s..."
-ANSIBLE_HOST_KEY_CHECKING=false "$MYKUBE_DIR/ansible-playbook" install-k8.yaml -b \
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook "$MYKUBE_DIR/ansible/install-k8.yaml" -b \
     -e "ansible_password=qwe123" \
     -i "$VM_IP_ADDRESS", \
-    -e "$ANSIBLE_EXTRA_VARS"
+    -e "$ANSIBLE_EXTRA_VARS" &> /dev/null & PID=$!
+
+loading_bar "$PID"
+
+echo "Thank you for installing MyKube"
+display_logo

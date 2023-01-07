@@ -2,7 +2,7 @@
 
 - hosts: all
   remote_user: liveuser
-  gather_facts: true
+  gather_facts: false
   roles:  
   - role: deploy_k8s
   - role: deploy_console
