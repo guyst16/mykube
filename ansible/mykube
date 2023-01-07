@@ -127,6 +127,12 @@ fi
 # Declare vars for the ansible playbook
 ANSIBLE_EXTRA_VARS="{'k8s_console_deployment':'$K8S_CONSOLE_DEPLOYMENT'}"
 
+# Create local MyKube directory
+if [ ! -d ~/.mykube ];
+then
+    mkdir ~/.mykube
+fi
+
 echo -e "Validate that $OS_ISO_SHORT_NAME image is ready..."
 if [ -f "$OS_ISO_FULL_PATH" ]; then
     echo -e "$OS_ISO_SHORT_NAME iso file $EXISTS_GREEN"
