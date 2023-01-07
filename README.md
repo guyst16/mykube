@@ -36,12 +36,12 @@ And you done.
 Ask for help:
 ![image](https://user-images.githubusercontent.com/100173467/205354613-96090430-5a85-4bc0-8c69-ebab4f3fb30e.png)
 
-### Delete vm
+### Destroy vm
 
 Run the next command:
 
 ```
-$ ./start --delete
+$ ./start --destroy
 ```
 
 ### Quick ssh to vm
