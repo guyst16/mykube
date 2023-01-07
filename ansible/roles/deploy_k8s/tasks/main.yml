@@ -5,6 +5,9 @@
   ansible.builtin.wait_for_connection:
     timeout: 1200
 
+- name: Gathering facts
+  ansible.builtin.setup:
+
 - name: Upgrade all packages
   ansible.builtin.yum:
     name: '*'
@@ -22,11 +25,6 @@
 - name: Install go
   ansible.builtin.yum:
     name: golang-1.18.8
-    state: present
-
-- name: Install git
-  ansible.builtin.yum:
-    name: git-2.38.1
     state: present
 
 - name: Install libselinux-python3
