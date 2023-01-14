@@ -16,4 +16,5 @@ export VM_DISK_PATH="/var/lib/libvirt/images/$VM_NAME.img"
 export VM_DISK_SIZE="20"
 
 export K8S_CONSOLE_DEPLOYMENT="true"
+export K8S_CONSOLE_NODE_PORT="32000"
 

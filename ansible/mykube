@@ -17,23 +17,21 @@ display_logo()
     echo "    | |\/| |  \ V /    | ' /  | | | | |  _ \  |  _|      "
     echo "    | |  | |   | |     | . \  | |_| | | |_) | | |___     "
     echo "    |_|  |_|   |_|     |_|\_\  \___/  |____/  |_____|    "
-    echo "                                                         "
-    echo "                         %%%%%%%%                        "
-    echo "                     #%%%%%%%%%%%%%%#                    "
-    echo "                  %%%%%%%%%%%%%%%%%%%%%%                 "
-    echo "              %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%             "
-    echo "               #%%%%%%%%%%%%%%%%%%%%%%%%%%%              "
-    echo "            %%%    %%%%%%%%%%%%%%%%%%%%,   %%%           "
-    echo "            %%%%%%.   %%%%%%%%%%%%%%    %%%%%%           "
-    echo "            %%%%%%%%%%   (%%%%%%%   #%%%%%%%%%           "
-    echo "            %%%%%%%%%%%%%        %%%%%%%%%%%%%           "
-    echo "            %%%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%%           "
-    echo "            %%%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%%           "
-    echo "             #%%%%%%%%%%%%%%  %%%%%%%%%%%%%%%            "
-    echo "                 %%%%%%%%%%%  %%%%%%%%%%%                "
-    echo "                    %%%%%%%%  %%%%%%%%                   "
-    echo "                       /%%%%  %%%%(                      "
-    echo "                           %  %                          "
+    echo "                                                         "    
+    echo "                          :^!!^.                         "
+    echo "                       :^!!77777!^:                      "
+    echo "                   .:^!!!7777777???7~:.                  "
+    echo "                 .~!!!!!7777777??????J?!.                "
+    echo "                :.:^!!77777777?????J?7~:::               "
+    echo "                ~!~:.:^!7777??????7~::~7J7               "
+    echo "                ~!!7!~:.:~7????7~::^7JJJJ!               "
+    echo "                !!777777~:.:!~::^7JJJJJJJ7               "
+    echo "                !777777???7~ .7?JJJJJJJJJ7               "
+    echo "                !77777?????? :JJJJJJJJJJJ!               "
+    echo "                .^!7???????? :JJJJJJJJ?!^                "
+    echo "                   .^!????J? :JJJJJ?7^.                  "
+    echo "                      .^7?J? :JJ?7^.                     "
+    echo "                         .~! :7^.                        "
 }
 
 # Show options
@@ -46,9 +44,9 @@ options_display()
     echo "--help|-h                Print this Help."
 }
 
+# Display Help
 display_help()
 {
-    # Display Help
     display_logo
     echo
     echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
@@ -72,6 +70,18 @@ connect_to_vm()
         ssh -o StrictHostKeyChecking=accept-new liveuser@"$(virsh domifaddr --domain "$VM_NAME" | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
 }
 
+# Display login vlues
+display_login()
+{
+    echo "Please configure your KubeConfig file before running any kubectl command:"
+    echo "          export KUBECONFIG=~/.mykube/admin.conf"
+    echo "Login to the dashboard here:"
+    echo "          https://$VM_IP_ADDRESS:$K8S_CONSOLE_NODE_PORT"
+    echo "With the token:"
+    echo -n "          "
+    cat ~/.mykube/admin-token
+}
+
 # Loading bar for a long command
 loading_bar()
 {
@@ -84,6 +94,7 @@ loading_bar()
 		    sleep 0.15
 	    done
     done
+    echo -n ""
 }
 
 # Options
@@ -125,7 +136,7 @@ if [ "$#" != 0 ] ; then
 fi
 
 # Declare vars for the ansible playbook
-ANSIBLE_EXTRA_VARS="{'k8s_console_deployment':'$K8S_CONSOLE_DEPLOYMENT'}"
+ANSIBLE_EXTRA_VARS="{'k8s_console_deployment':'$K8S_CONSOLE_DEPLOYMENT', 'k8s_console_node_port':'$K8S_CONSOLE_NODE_PORT'}"
 
 # Create local MyKube directory
 if [ ! -d ~/.mykube ];
@@ -186,7 +197,7 @@ loading_bar "$PID"
 echo -ne "VM $CREATED_GREEN"
 
 # Waiting for IP address
-echo -e "Wait for IP address to get assigned..."
+echo -e "\nWait for IP address to get assigned..."
 validate_ip=$(virsh domifaddr --domain myFedoraVM 2> /dev/null)
 while [[ "$validate_ip" == "" ]];
 do
@@ -215,7 +226,7 @@ fi
 echo -e "\nInstall k8s module for ansible"
 ansible-galaxy collection install kubernetes.core &> /dev/null
 
-echo -e "\nRun ansible-playbook for deploying k8s..."
+echo -e "\nRun ansible-playbook for deploying k8s...\n"
 ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook "$MYKUBE_DIR/ansible/install-k8.yaml" -b \
     -e "ansible_password=qwe123" \
     -i "$VM_IP_ADDRESS", \
@@ -223,5 +234,7 @@ ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook "$MYKUBE_DIR/ansible/install-k8
 
 loading_bar "$PID"
 
-echo "Thank you for installing MyKube"
+display_login
+
+echo -e "\nThank you for installing MyKube"
 display_logo
