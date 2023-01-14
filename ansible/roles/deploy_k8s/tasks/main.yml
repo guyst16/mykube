@@ -24,8 +24,13 @@
 
 - name: Install go
   ansible.builtin.yum:
+<<<<<<< HEAD
     name: golang
     state: latest # noqa package-latest
+=======
+    name: golang-1.18.8
+    state: present
+>>>>>>> 2bceff3 (Fix/printing while installing (#10))
 
 - name: Install libselinux-python3
   ansible.builtin.yum:
