@@ -21,4 +21,7 @@
   register: cluster_admin_token
 
 - name: Save token to file
-  local_action: ansible.builtin.copy content="{{ cluster_admin_token.stdout }}" dest="/home/liveuser/admin-token"
+  ansible.builtin.copy: 
+    content: "{{ cluster_admin_token.stdout }}"
+    dest: "/home/liveuser/admin-token"
+    delegate_to: localhost
