@@ -23,5 +23,10 @@
 - name: Save token to file
   ansible.builtin.copy: 
     content: "{{ cluster_admin_token.stdout }}"
+    dest: "/home/liveuser/admin-token"
+
+- name: Copy token file locally
+  ansible.builtin.fetch: 
+    src: "/home/liveuser/admin-token"
     dest: "~/.mykube/admin-token"
-    delegate_to: localhost
+    flat: true

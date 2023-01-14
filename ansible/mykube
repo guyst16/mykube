@@ -141,7 +141,18 @@ ANSIBLE_EXTRA_VARS="{'k8s_console_deployment':'$K8S_CONSOLE_DEPLOYMENT', 'k8s_co
 # Create local MyKube directory
 if [ ! -d ~/.mykube ];
 then
+    echo "Create new ~/.MyKube dir"
     mkdir ~/.mykube
+else
+    echo "Removing old k8s credentials files from ~/.MyKube"
+    if [ -f ~/.mykube/admin.conf ];
+    then
+        rm ~/.mykube/admin.conf
+    fi
+    if [ -f ~/.mykube/admin-token ];
+    then
+        rm ~/.mykube/admin-token
+    fi
 fi
 
 echo -e "Validate that $OS_ISO_SHORT_NAME image is ready..."
