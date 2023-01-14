@@ -70,6 +70,33 @@ connect_to_vm()
         ssh -o StrictHostKeyChecking=accept-new liveuser@"$(virsh domifaddr --domain "$VM_NAME" | grep ':' | awk '{print $4}' | cut -d'/' -f1)"
 }
 
+# Display login vlues
+display_login()
+{
+    echo "Please configure your KubeConfig file before running any kubectl command:"
+    echo "          export KUBECONFIG=~/.mykube/admin.conf"
+    echo "Login to the dashboard here:"
+    echo "          https://$VM_IP_ADDRESS:$K8S_CONSOLE_NODE_PORT"
+    echo "With the token:"
+    echo -n "          "
+    cat ~/.mykube/admin-token
+}
+
+# Loading bar for a long command
+loading_bar()
+{
+    load=("\\" "|" "/" "-")
+    while kill -0 $PID 2> /dev/null;
+    do
+	    for l in "${load[@]}";
+	    do
+		    echo -ne "$l \r"
+		    sleep 0.15
+	    done
+    done
+    echo -n ""
+}
+
 # Options
 OPTIONS=$(getopt -o h --long help,connect,destroy,no-console-deploymentg -- "$@")
 
