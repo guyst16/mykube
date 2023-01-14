@@ -7,9 +7,8 @@
 - name: Patch console service to NodePort type
   ansible.builtin.command: "kubectl patch service -n kubernetes-dashboard kubernetes-dashboard  --patch '{\"spec\": {\"type\": \"NodePort\"}}'"
 
-- name: Get console service NodePort
-  ansible.builtin.command: "kubectl get service -n kubernetes-dashboard kubernetes-dashboard  -o jsonpath='{.spec.ports[].nodePort}'"
-  register: service_nodeport  
+- name: Patch console service NodePort
+  ansible.builtin.command: "kubectl patch service -n kubernetes-dashboard kubernetes-dashboard --type=json -p '[{\"op\": \"replace\", \"path\": \"/spec/ports/0/nodePort\",\"value\": {{ k8s_console_node_port }}}]'"
 
 - name: Create cluster-admin sa
   ansible.builtin.command: "kubectl create sa cluster-admin --namespace=default"
@@ -21,10 +20,13 @@
   ansible.builtin.command: "kubectl create token cluster-admin"
   register: cluster_admin_token
 
-- name: Echo token
-  ansible.builtin.debug:
-    msg: "{{ cluster_admin_token.stdout }}"
+- name: Save token to file
+  ansible.builtin.copy: 
+    content: "{{ cluster_admin_token.stdout }}"
+    dest: "/home/liveuser/admin-token"
 
-- name: Echo console address
-  ansible.builtin.debug:
-    msg: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ service_nodeport.stdout }}"
+- name: Copy token file locally
+  ansible.builtin.fetch: 
+    src: "/home/liveuser/admin-token"
+    dest: "~/.mykube/admin-token"
+    flat: true

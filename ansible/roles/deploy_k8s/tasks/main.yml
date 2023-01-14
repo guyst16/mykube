@@ -19,18 +19,18 @@
 
 - name: Install containerd.io
   ansible.builtin.yum:
-    name: containerd.io-1.6.10
-    state: present
+    name: containerd.io
+    state: latest # noqa package-latest
 
 - name: Install go
   ansible.builtin.yum:
-    name: golang-1.18.8
-    state: present
+    name: golang
+    state: latest # noqa package-latest
 
 - name: Install libselinux-python3
   ansible.builtin.yum:
-    name: python3-libselinux-3.3
-    state: present
+    name: python3-libselinux
+    state: latest # noqa package-latest
 
 - name: Get Containerd default config file
   ansible.builtin.command: "containerd config default"
@@ -219,3 +219,11 @@
     path: /opt/cni/bin
     mode: 0744
     recurse: yes
+
+- name: Copy admin.conf to local
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: ~/.mykube/admin.conf
+    mode: 0666
+    flat: yes
+    directory_mode: no
