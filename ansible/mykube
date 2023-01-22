@@ -41,6 +41,7 @@ options_display()
     echo "--no-console-deployment  Disable console deployment."
     echo "--destroy                Destroy existing vms"
     echo "--connect                Connect to vm"
+    echo "-v                       Verbose mode"
     echo "--help|-h                Print this Help."
 }
 
@@ -51,7 +52,7 @@ display_help()
     echo
     echo "MyKube is a new easy-to-use tool for creating your own virtual machine with k8s installed only by one click."
     echo
-    echo "Syntax: ./start [-h|--help|--no-console-deployment|--destroy|--connect]"
+    echo "Syntax: ./start [-h|--help|-v|--no-console-deployment|--destroy|--connect]"
     echo
     options_display
 }
@@ -94,11 +95,21 @@ loading_bar()
 		    sleep 0.15
 	    done
     done
-    echo -n ""
+}
+
+# Verobse function
+redirect_cmd() {
+    # write your test however you want; this just tests if SILENT is non-empty
+    if [ -z "$VERBOSE" ]; then
+        "$@" &>/dev/null & PID=$!
+    else
+        "$@" & PID=$!
+    fi
+    loading_bar "$PID"
 }
 
 # Options
-OPTIONS=$(getopt -o h --long help,connect,destroy,no-console-deploymentg -- "$@")
+OPTIONS=$(getopt -o h,v --long help,connect,destroy,no-console-deploymentg -- "$@")
 
 VALID_ARGUMENTS=$?
 if [ "$VALID_ARGUMENTS" != "0" ]; then
@@ -111,6 +122,9 @@ while true; do
         -h | --help ) # Display help
             display_help
             exit 0;;
+        -v ) # Verbose mode
+            VERBOSE="true"
+            shift;;
         --connect ) # Connect to vm
             connect_to_vm
             exit 0;;
@@ -190,7 +204,7 @@ else
 fi
 
 echo -e "\nStart deploying the new vm..."
-virt-install -n "$VM_NAME" \
+redirect_cmd virt-install -n "$VM_NAME" \
     --description "my test $OS_ISO_SHORT_NAME vm" \
     --os-variant="$VM_OS_VARIANT" --ram="$VM_MEMORY" \
     --vcpus="$VM_VCPUS" \
@@ -200,12 +214,9 @@ virt-install -n "$VM_NAME" \
     --initrd-inject=$MYKUBE_DIR/ks.cfg \
     --extra-args='inst.ks=file:/ks.cfg console=tty0 console=ttyS0,115200n8' \
     --noautoconsole \
-    --wait=-1 \
-    --quiet & PID=$!
+    --wait=-1
 
-loading_bar "$PID"
-
-echo -ne "VM $CREATED_GREEN"
+echo -e "VM $CREATED_GREEN"
 
 # Waiting for IP address
 echo -e "\nWait for IP address to get assigned..."
@@ -238,12 +249,11 @@ echo -e "\nInstall k8s module for ansible"
 ansible-galaxy collection install kubernetes.core &> /dev/null
 
 echo -e "\nRun ansible-playbook for deploying k8s..."
-ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook "$MYKUBE_DIR/ansible/install-k8.yaml" -b \
+export ANSIBLE_HOST_KEY_CHECKING=false
+redirect_cmd ansible-playbook "$MYKUBE_DIR/ansible/install-k8.yaml" -b \
     -e "ansible_password=qwe123" \
     -i "$VM_IP_ADDRESS", \
-    -e "$ANSIBLE_EXTRA_VARS" &> /dev/null & PID=$!
-
-loading_bar "$PID"
+    -e "$ANSIBLE_EXTRA_VARS"
 
 display_login
 
