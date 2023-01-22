@@ -122,7 +122,7 @@ while true; do
         -h | --help ) # Display help
             display_help
             exit 0;;
-        -v | --verbose ) # Verbose mode
+        -v ) # Verbose mode
             VERBOSE="true"
             shift;;
         --connect ) # Connect to vm
