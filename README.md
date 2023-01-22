@@ -21,27 +21,28 @@ All the dependencies are included, which means there are **no** previous steps t
 
 Run the next commands for deploying k8s single-node cluster installation:
 
+1. Go to _MyKube_ [releases](https://github.com/guyst16/mykube/releases/tag/v0.0.1-alpha)
+2. Download & install the desired release package
+3. Run the next command for creating the cluster:
 ```
-$ git clone https://github.com/guyst16/mykube.git
-$ cd mykube/ansible
-$ ./start.sh
+$ mykube
 ```
 
 And you done.
 
-* The script `start.sh` is reuseable, which means it will destroy the vm and create a new one if re-executed
+* The command `mykube` is reuseable, which means it will destroy the vm and create a new one if re-executed
 
 ### Need some help?
 
 Ask for help:
-![image](https://user-images.githubusercontent.com/100173467/205354613-96090430-5a85-4bc0-8c69-ebab4f3fb30e.png)
+![Screenshot from 2023-01-22 20-54-50](https://user-images.githubusercontent.com/100173467/213934360-3f867824-674e-4ab1-9415-832f3bf203e2.png)
 
 ### Destroy vm
 
 Run the next command:
 
 ```
-$ ./start --destroy
+$ mykube --destroy
 ```
 
 ### Quick ssh to vm
@@ -49,9 +50,8 @@ $ ./start --destroy
 Run the command:
 
 ```
-$ ./start --connect
+$ mykube --connect
 ```
-
 
 
 #### (Compatibility) Linux kernel distributions:
