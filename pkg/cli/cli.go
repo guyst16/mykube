@@ -5,10 +5,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/guyst16/mykube/virtualmachine"
+	"github.com/guyst16/mykube/pkg/virtualmachine"
 
 	"github.com/urfave/cli"
 )
+
+var MAIN_DIR = "~/.mykube"
+var LIBVIRT_MYKUBE_DIR = "/var/lib/libvirt/images/mykube"
 
 func Cli() {
 	app := &cli.App{
@@ -20,6 +23,21 @@ func Cli() {
 				Name:  "create",
 				Usage: "Create a single node K8S",
 				Action: func(ctx *cli.Context) error {
+					// Validate main directory existence
+					_, dir_err := os.Stat(MAIN_DIR)
+					if os.IsNotExist(dir_err) {
+						os.Mkdir(MAIN_DIR, 0744)
+					}
+
+					// Validate virtual machines directory in Libvirt directory
+					_, dir_err = os.Stat(MAIN_DIR)
+					if os.IsNotExist(dir_err) {
+						os.Mkdir(MAIN_DIR, 0744)
+					}
+
+					// Create mykube virtual machine
+					myVM := virtualmachine.NewVirtualmachine("a", "a", 1, 1, "a")
+					myVM.CreateVirtualmachine()
 					return nil
 				},
 			},

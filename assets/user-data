@@ -1,0 +1,70 @@
+#cloud-config
+
+users:
+  - name: sumit
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDEU/It+xP85oOUBTHX+BtpLdtXikNoXPjWoq1I1bKjuvtxQP/p8f/dDhqJ0X6j/GqFTZi8asCf6lIpjA8e6OxV0OfKvrsAqEG483Y0EFL/P/RGwwyekBfpprCajE0faFcaBWhdCpIxHXEejnPaVTH7ouv8H8mETmNWRgaZuUo7KKpOWbAgCKuq6SokUZZ3HGHu8z16YXGWrkCTEbEf/QbMIQ5+ETFImyIqWrK3pyuB7Yie+FG4C/KA+3VH55q3NwZc54Yj1e9hYPzVefQEYeRoZBNIVixEd9bhM8jsBJlCutgaMX9ZZgddcdZvxlnoscn/EQ0kRyOy3rX/LRuOnF3RvlbCvZJME80uhwVITKQE2HOEUTedObHxOP6k0P+/dg7RgZfD20upOiNygPNV3X9c/AB3oaUKrCZxtZ1B52b70gPhw02qARmjlrL6VoJnSJo5+IP885b0GxCHOsyH7wvUMltRi62VBMD42VmIFc2qhDQ8nNNIBCunbMB7DubRdXs= guy@guy-laptop
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    passwd: "$6$umYSAcs//qmYzwRH$g9en2tmzp6h9CHDHaNn.wK2jQtZbIjb8KU8yB.hTvRL.cp2kYuqB9U9Kgj1v9e23CZ8xffD24OLM2u8/PtZ131"
+
+packages:
+- podman
+
+
+write_files:
+- encoding: base64
+  content: |
+    IyEvYmluL2Jhc2gKCiMgU2V0IFNFTGludXggaW4gcGVybWlzc2l2ZSBtb2RlIChlZmZlY3RpdmVs
+    eSBkaXNhYmxpbmcgaXQpCnN1ZG8gc2V0ZW5mb3JjZSAwCnN1ZG8gc2VkIC1pICdzL15TRUxJTlVY
+    PWVuZm9yY2luZyQvU0VMSU5VWD1wZXJtaXNzaXZlLycgL2V0Yy9zZWxpbnV4L2NvbmZpZwoKIyBU
+    aGlzIG92ZXJ3cml0ZXMgYW55IGV4aXN0aW5nIGNvbmZpZ3VyYXRpb24gaW4gL2V0Yy95dW0ucmVw
+    b3MuZC9rdWJlcm5ldGVzLnJlcG8KY2F0IDw8RU9GIHwgc3VkbyB0ZWUgL2V0Yy95dW0ucmVwb3Mu
+    ZC9rdWJlcm5ldGVzLnJlcG8KW2t1YmVybmV0ZXNdCm5hbWU9S3ViZXJuZXRlcwpiYXNldXJsPWh0
+    dHBzOi8vcGtncy5rOHMuaW8vY29yZTovc3RhYmxlOi92MS4yOC9ycG0vCmVuYWJsZWQ9MQpncGdj
+    aGVjaz0xCmdwZ2tleT1odHRwczovL3BrZ3MuazhzLmlvL2NvcmU6L3N0YWJsZTovdjEuMjgvcnBt
+    L3JlcG9kYXRhL3JlcG9tZC54bWwua2V5CmV4Y2x1ZGU9a3ViZWxldCBrdWJlYWRtIGt1YmVjdGwg
+    Y3JpLXRvb2xzIGt1YmVybmV0ZXMtY25pCkVPRgoKI0Rpc2FibGUgc3dhcCAKc3VkbyBkbmYgcmVt
+    b3ZlIC15IHpyYW0tZ2VuZXJhdG9yCgpzdWRvIHN3YXBvZmYgLWEKCiNFbmFibGUgbmV0d29yayBw
+    YXJhbWV0ZXJzCnN1ZG8gbW9kcHJvYmUgYnJfbmV0ZmlsdGVyCmVjaG8gIm5ldC5pcHY0LmlwX2Zv
+    cndhcmQgPSAxIiB8IHN1ZG8gdGVlIC1hIC9ldGMvc3lzY3RsLmNvbmYKc3VkbyBzeXNjdGwgLXAK
+    c3VkbyBkbmYgaW5zdGFsbCAteSBpcHJvdXRlLXRjCgoKI0luc3RhbGwga3ViZWxldCwga3ViZWFk
+    bSBhbmQga3ViZWN0bCwgYW5kIGVuYWJsZSBrdWJlbGV0IHRvIGVuc3VyZSBpdCdzIGF1dG9tYXRp
+    Y2FsbHkgc3RhcnRlZCBvbiBzdGFydHVwOgpzdWRvIHl1bSBpbnN0YWxsIC15IGt1YmVsZXQga3Vi
+    ZWFkbSBrdWJlY3RsIC0tZGlzYWJsZWV4Y2x1ZGVzPWt1YmVybmV0ZXMKc3VkbyBzeXN0ZW1jdGwg
+    ZW5hYmxlIC0tbm93IGt1YmVsZXQKCiNJbnN0YWxsIGNvbnRhaW5lcmQKc3VkbyB5dW0gaW5zdGFs
+    bCAteSBjb250YWluZXJkCnN1ZG8gc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBjb250YWluZXJkCgpz
+    dWRvIHNoIC1jICJjb250YWluZXJkIGNvbmZpZyBkZWZhdWx0ID4gL2V0Yy9jb250YWluZXJkL2Nv
+    bmZpZy50b21sIiAKc3VkbyBzZWQgLWkgJ3MvU3lzdGVtZENncm91cCA9IGZhbHNlL1N5c3RlbWRD
+    Z3JvdXAgPSB0cnVlLycgIC9ldGMvY29udGFpbmVyZC9jb25maWcudG9tbApzdWRvIHN5c3RlbWN0
+    bCByZXN0YXJ0IGNvbnRhaW5lcmQKCiNJbnN0YWxsIEs4UyBjbHVzdGVyCnN1ZG8ga3ViZWFkbSBp
+    bml0IC0tcG9kLW5ldHdvcmstY2lkcj0xMC4yNDQuMC4wLzE2Cgp1bnRpbCBzdWRvIGt1YmVjdGwg
+    LS1rdWJlY29uZmlnPS9ldGMva3ViZXJuZXRlcy9hZG1pbi5jb25mIHRhaW50IG5vZGUgaGFsOTAw
+    MCBub2RlLXJvbGUua3ViZXJuZXRlcy5pby9jb250cm9sLXBsYW5lLTsKZG8KICAgIGVjaG8gIlRy
+    eSB1bnRhaW50IG5vZGUuLi4iCiAgICBzbGVlcCAxCmRvbmU7Cgp1bnRpbCBzdWRvIGt1YmVjdGwg
+    LS1rdWJlY29uZmlnPS9ldGMva3ViZXJuZXRlcy9hZG1pbi5jb25mIGFwcGx5IC1mIGh0dHBzOi8v
+    Z2l0aHViLmNvbS9mbGFubmVsLWlvL2ZsYW5uZWwvcmVsZWFzZXMvbGF0ZXN0L2Rvd25sb2FkL2t1
+    YmUtZmxhbm5lbC55bWw7CmRvCiAgICBlY2hvICJUcnkgaW5zdGFsbCBmbGFubmVsLi4uIgogICAg
+    c2xlZXAgMQpkb25lOwoKdW50aWwgc3VkbyBrdWJlY3RsIC0ta3ViZWNvbmZpZz0vZXRjL2t1YmVy
+    bmV0ZXMvYWRtaW4uY29uZiBhcHBseSAtZiBodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5j
+    b20va3ViZXJuZXRlcy9kYXNoYm9hcmQvdjIuNy4wL2Fpby9kZXBsb3kvcmVjb21tZW5kZWQueWFt
+    bDsKZG8KICAgIGVjaG8gIlRyeSBpbnN0YWxsIEs4UyBjb25zb2xlLi4uIgogICAgc2xlZXAgMQpk
+    b25lOwoKdW50aWwgWyAtZiAvb3B0L2NuaS9iaW4vZmxhbm5lbCBdOwpkbyAKICAgIGVjaG8gIldh
+    aXRpbmcgZm9yIGZsYW5uZWwgYmluIGNyZWF0aW9uLi4uIjsKICAgIHNsZWVwIDE7CmRvbmUKc3Vk
+    byBjcCAvb3B0L2NuaS9iaW4vKiAvdXNyL2xpYmV4ZWMvY25pLwpzdWRvIGNwIC91c3IvbGliZXhl
+    Yy9jbmkvKiAvb3B0L2NuaS9iaW4vCgpzdWRvIGt1YmVjdGwgLS1rdWJlY29uZmlnPS9ldGMva3Vi
+    ZXJuZXRlcy9hZG1pbi5jb25mIHBhdGNoIHN2YyBrdWJlcm5ldGVzLWRhc2hib2FyZCAtbiBrdWJl
+    cm5ldGVzLWRhc2hib2FyZCAtLXR5cGU9J21lcmdlJyAtcCAneyJzcGVjIjp7InR5cGUiOiJOb2Rl
+    UG9ydCJ9fScKc3VkbyBrdWJlY3RsIC0ta3ViZWNvbmZpZz0vZXRjL2t1YmVybmV0ZXMvYWRtaW4u
+    Y29uZiBwYXRjaCBzdmMga3ViZXJuZXRlcy1kYXNoYm9hcmQgLW4ga3ViZXJuZXRlcy1kYXNoYm9h
+    cmQgLS10eXBlPSdqc29uJyAtcD0nW3sib3AiOiAicmVwbGFjZSIsICJwYXRoIjogIi9zcGVjL3Bv
+    cnRzLzAvbm9kZVBvcnQiLCAidmFsdWUiOiAzMTAwMH1dJw==
+  path: /mnt/install-k8s.sh
+  permissions: "0777"
+- content: |
+    CREATED BY GUY STEINBERGER!!!
+  path: /mnt/test-guy-init-file.txt
+
+runcmd:
+- sudo /mnt/install-k8s.sh

@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/guyst16/mykube/mykubeLibvirt"
+	"github.com/guyst16/mykube/pkg/embedfiles"
+	"github.com/guyst16/mykube/pkg/libvirtconn"
 )
 
 type Virtualmachine struct {
@@ -24,7 +25,7 @@ func NewVirtualmachine(os_name string, os_path string, vcpu_amount int, memory_a
 func ListAllVirtualmachines() {
 	println("ID\tNAME\t\tUUID\t\t\t\t\tSTATE")
 	println("-----------------------------------------------------------------------")
-	libvirtconn := mykubeLibvirt.ConnectLibvirtLocal()
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
 	states := map[libvirt.ConnectListAllDomainsFlags]string{libvirt.ConnectListDomainsRunning: "Running", libvirt.ConnectListDomainsPaused: "Paused", libvirt.ConnectListDomainsShutoff: "Shutoff"}
 	for state := range states {
 		flags := state
@@ -37,5 +38,14 @@ func ListAllVirtualmachines() {
 }
 
 func (vm Virtualmachine) CreateVirtualmachine() {
+	assets, _ := embedfiles.ReadFile("assets/user-data")
+	fmt.Println(string(assets))
+
 	// libvirtconn := mykubeLibvirt.ConnectLibvirtLocal()
+	// vmXMLBytes, err := os.ReadFile("assets/vmTemplate.xml")
+	// if err != nil {
+	// 	fmt.Print(err)
+	// }
+	// vmXMLString := string(vmXMLBytes)
+	// libvirtconn.DomainDefineXML(vmXMLString)
 }

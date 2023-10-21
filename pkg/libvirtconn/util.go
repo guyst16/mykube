@@ -1,4 +1,4 @@
-package mykubeLibvirt
+package libvirtconn
 
 import (
 	"log"
