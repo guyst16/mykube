@@ -8,6 +8,6 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
-func ReadFile(filename string) ([]byte, error) {
+func InnerReadFile(filename string) ([]byte, error) {
 	return assets.ReadFile(filename)
 }

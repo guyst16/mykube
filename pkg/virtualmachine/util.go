@@ -2,23 +2,24 @@ package virtualmachine
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/guyst16/mykube/pkg/embedfiles"
 	"github.com/guyst16/mykube/pkg/libvirtconn"
 )
 
 type Virtualmachine struct {
-	os_name       string
-	os_path       string
-	vcpu_amount   int
-	memory_amount int
-	name          string
+	os_name          string
+	os_path          string
+	cloudconfig_path string
+	vcpu_amount      int
+	memory_amount    int
+	name             string
 }
 
 // Create virtual machine object
-func NewVirtualmachine(os_name string, os_path string, vcpu_amount int, memory_amount int, name string) *Virtualmachine {
-	v := Virtualmachine{os_name: os_name, os_path: os_path, vcpu_amount: vcpu_amount, memory_amount: memory_amount, name: name}
+func NewVirtualmachine(os_name string, os_path string, cloudconfig_path string, vcpu_amount int, memory_amount int, name string) *Virtualmachine {
+	v := Virtualmachine{os_name: os_name, os_path: os_path, cloudconfig_path: cloudconfig_path, vcpu_amount: vcpu_amount, memory_amount: memory_amount, name: name}
 	return &v
 }
 
@@ -38,14 +39,20 @@ func ListAllVirtualmachines() {
 }
 
 func (vm Virtualmachine) CreateVirtualmachine() {
-	assets, _ := embedfiles.ReadFile("assets/user-data")
-	fmt.Println(string(assets))
 
-	// libvirtconn := mykubeLibvirt.ConnectLibvirtLocal()
+	vmXML := ModifyXML("assets/vmTemplate.xml", vm.name, vm.os_path, vm.cloudconfig_path)
+
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
 	// vmXMLBytes, err := os.ReadFile("assets/vmTemplate.xml")
 	// if err != nil {
 	// 	fmt.Print(err)
 	// }
 	// vmXMLString := string(vmXMLBytes)
 	// libvirtconn.DomainDefineXML(vmXMLString)
+	vmXMLString := string(vmXML)
+	fmt.Print(vmXMLString)
+	_, err := libvirtconn.DomainDefineXML(vmXMLString)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
