@@ -1,6 +1,9 @@
 package cli
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/guyst16/mykube/pkg/embedfiles"
 	"github.com/guyst16/mykube/pkg/virtualmachine"
 	"github.com/kdomanski/iso9660"
 	"github.com/urfave/cli"
@@ -26,9 +30,12 @@ var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-
 var LIBVIRT_MYKUBE_VM_DIR = ""
 var LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = ""
 var LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH = ""
-var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cloudconfig"
+var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "user-data"
 var LIBVIRT_MYKUBE_UTIL_METADATA_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "meta-data"
 var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cidata.iso"
+
+// Valid
+var OS_IMAGE_SHA256SUM = "d334670401ff3d5b4129fcc662cf64f5a6e568228af59076cc449a4945318482"
 
 // TODO: Handle all err inside the helpers functions
 func Cli() {
@@ -41,65 +48,66 @@ func Cli() {
 				Name:  "create",
 				Usage: "Create a single node K8S",
 				Action: func(ctx *cli.Context) error {
-					// userHomeDir, err := os.UserHomeDir()
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
+					userHomeDir, err := os.UserHomeDir()
+					if err != nil {
+						log.Fatal(err)
+					}
 
-					// MAIN_DIR = userHomeDir + "/" + MAIN_DIR
-					// DIRECTORIES_UTIL = [...]string{MAIN_DIR, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
+					MAIN_DIR = userHomeDir + "/" + MAIN_DIR
+					DIRECTORIES_UTIL = [...]string{MAIN_DIR, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
 
-					// // Validate directories existence
-					// for _, dir := range DIRECTORIES_UTIL {
-					// 	_, dir_err := os.Stat(dir)
-					// 	if os.IsNotExist(dir_err) {
-					// 		err := os.Mkdir(dir, 0744)
-					// 		if err != nil {
-					// 			log.Fatal(err)
-					// 		}
-					// 	}
-					// }
+					// Validate directories existence
+					for _, dir := range DIRECTORIES_UTIL {
+						_, dir_err := os.Stat(dir)
+						if os.IsNotExist(dir_err) {
+							err := os.Mkdir(dir, 0744)
+							if err != nil {
+								log.Fatal(err)
+							}
+						}
+					}
 
-					// // Download cloud base image
-					// //downloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
-
-					// // TODO: Verify image checksum
+					err = ValidateOSImage(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, OS_IMAGE_SHA256SUM)
+					if err != nil {
+						// Download cloud base image
+						log.Print("Download OS image file")
+						DownloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
+					}
 
 					vm_uuid := uuid.New()
 
 					// Create VM directory and copy image
 					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vm_uuid.String()
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
-					// err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
-					// fmt.Println(LIBVIRT_MYKUBE_VM_DIR)
-					// err = CopyFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH)
-					// if err != nil {
-					// 	log.Fatal(err)
-					// }
+					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
+					if err != nil {
+						log.Fatal(err)
+					}
+					err = CopyFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH)
+					if err != nil {
+						log.Fatal(err)
+					}
 
-					// // Create meta-data files and iso
-					// cloudConfigContent, _ := embedfiles.InnerReadFile("assets/user-data")
-					// metaDataContent, _ := embedfiles.InnerReadFile("assets/meta-data")
+					// Create meta-data files and iso
+					cloudConfigContent, _ := embedfiles.InnerReadFile("assets/user-data")
+					metaDataContent, _ := embedfiles.InnerReadFile("assets/meta-data")
 
-					// err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, cloudConfigContent, 0644)
-					// if err != nil {
-					// 	return err
-					// }
+					err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, cloudConfigContent, 0644)
+					if err != nil {
+						return err
+					}
 
-					// err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_METADATA_PATH, metaDataContent, 0644)
-					// if err != nil {
-					// 	return err
-					// }
+					err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_METADATA_PATH, metaDataContent, 0644)
+					if err != nil {
+						return err
+					}
 
-					// cloudConfigFilesArr := []string{LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, LIBVIRT_MYKUBE_UTIL_METADATA_PATH}
-					// CreateISO(cloudConfigFilesArr, LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH)
+					cloudConfigFilesArr := []string{LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, LIBVIRT_MYKUBE_UTIL_METADATA_PATH}
+					CreateISO(cloudConfigFilesArr, LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH)
 
-					// // Copy cloud config ISO to VM directory
+					// Copy cloud config ISO to VM directory
 					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/")[len(strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/"))-1]
-					// CopyFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH)
+					CopyFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH)
 
 					// Create mykube virtual machine
 					myVM := virtualmachine.NewVirtualmachine("os", LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH, 1, 1, "test123")
@@ -211,7 +219,7 @@ func CreateISO(filesListFullPath []string, outputISOPath string) {
 		log.Fatalf("failed to create file: %s", err)
 	}
 
-	err = writer.WriteTo(outputFile, "testvol")
+	err = writer.WriteTo(outputFile, "cidata")
 	if err != nil {
 		log.Fatalf("failed to write ISO image: %s", err)
 	}
@@ -220,4 +228,30 @@ func CreateISO(filesListFullPath []string, outputISOPath string) {
 	if err != nil {
 		log.Fatalf("failed to close output file: %s", err)
 	}
+}
+
+// Validate the given image file, else return an error
+func ValidateOSImage(filePath string, validSHA256sum string) (err error) {
+	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+
+	imageSum := h.Sum(nil)
+
+	if hex.EncodeToString(imageSum) != validSHA256sum {
+		return errors.New("SHA256sum is not equal")
+	}
+
+	return nil
 }

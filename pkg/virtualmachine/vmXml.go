@@ -22,6 +22,8 @@ type source struct {
 }
 
 type disk struct {
+	Type    string     `xml:"type,attr"`
+	Device  string     `xml:"device,attr"`
 	Driver  diskSubTag `xml:"driver"`
 	Source  source     `xml:"source"`
 	Target  diskSubTag `xml:"target"`

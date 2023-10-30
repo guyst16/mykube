@@ -50,7 +50,6 @@ func (vm Virtualmachine) CreateVirtualmachine() {
 	// vmXMLString := string(vmXMLBytes)
 	// libvirtconn.DomainDefineXML(vmXMLString)
 	vmXMLString := string(vmXML)
-	fmt.Print(vmXMLString)
 	_, err := libvirtconn.DomainDefineXML(vmXMLString)
 	if err != nil {
 		log.Fatal(err)
