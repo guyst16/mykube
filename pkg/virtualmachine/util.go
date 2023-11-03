@@ -17,22 +17,38 @@ type Virtualmachine struct {
 	name             string
 }
 
+var STATES = map[libvirt.ConnectListAllDomainsFlags]string{libvirt.ConnectListDomainsRunning: "Running", libvirt.ConnectListDomainsPaused: "Paused", libvirt.ConnectListDomainsShutoff: "Shutoff"}
+
 // Create virtual machine object
 func NewVirtualmachine(os_name string, os_path string, cloudconfig_path string, vcpu_amount int, memory_amount int, name string) *Virtualmachine {
 	v := Virtualmachine{os_name: os_name, os_path: os_path, cloudconfig_path: cloudconfig_path, vcpu_amount: vcpu_amount, memory_amount: memory_amount, name: name}
 	return &v
 }
 
+func GetVirtualMachine(vmName string) (vm *libvirt.Domain) {
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
+	for state := range STATES {
+		flags := state
+		domains, _, _ := libvirtconn.ConnectListAllDomains(1, flags)
+		for _, vm := range domains {
+			if vm.Name == vmName {
+				return &vm
+			}
+		}
+	}
+
+	return nil
+}
+
 func ListAllVirtualmachines() {
 	println("ID\tNAME\t\tUUID\t\t\t\t\tSTATE")
 	println("-----------------------------------------------------------------------")
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
-	states := map[libvirt.ConnectListAllDomainsFlags]string{libvirt.ConnectListDomainsRunning: "Running", libvirt.ConnectListDomainsPaused: "Paused", libvirt.ConnectListDomainsShutoff: "Shutoff"}
-	for state := range states {
+	for state := range STATES {
 		flags := state
 		domains, _, _ := libvirtconn.ConnectListAllDomains(1, flags)
 		for _, vm := range domains {
-			fmt.Printf("%d\t%s\t%x\t%s\n", vm.ID, vm.Name, vm.UUID, states[state])
+			fmt.Printf("%d\t%s\t%x\t%s\n", vm.ID, vm.Name, vm.UUID, STATES[state])
 			print(libvirtconn.DomainGetXMLDesc(vm, 1))
 		}
 	}

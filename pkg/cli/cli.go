@@ -10,12 +10,14 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/digitalocean/go-libvirt"
 	"github.com/google/uuid"
 	"github.com/guyst16/mykube/pkg/embedfiles"
 	"github.com/guyst16/mykube/pkg/virtualmachine"
 	"github.com/kdomanski/iso9660"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 // Directories
@@ -39,15 +41,38 @@ var OS_IMAGE_SHA256SUM = "d334670401ff3d5b4129fcc662cf64f5a6e568228af59076cc449a
 
 // TODO: Handle all err inside the helpers functions
 func Cli() {
+	var vmName string
+
 	app := &cli.App{
-		Name:   "mykube",
-		Usage:  "Manage single node K8S",
-		Author: "guyst16 - Guy Steinberger",
-		Commands: []cli.Command{
+		Name:     "mykube",
+		Usage:    "Manage single node K8S",
+		Compiled: time.Now(),
+		Authors: []*cli.Author{
+			{
+				Name:  "Guy Steinberger",
+				Email: "guyst16@gmail.com",
+			},
+		},
+		Commands: []*cli.Command{
 			{
 				Name:  "create",
 				Usage: "Create a single node K8S",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "vm_name",
+						Usage:       "Name of the K8S cluster",
+						Required:    true,
+						Destination: &vmName,
+					},
+				},
 				Action: func(ctx *cli.Context) error {
+					// Validate vm doesn't already exist
+					_, err := GetVM(vmName)
+					if err == nil {
+						log.Fatalf("Virtual machine named %q already exists", vmName)
+					}
+
+					// Create home directory
 					userHomeDir, err := os.UserHomeDir()
 					if err != nil {
 						log.Fatal(err)
@@ -110,7 +135,7 @@ func Cli() {
 					CopyFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH)
 
 					// Create mykube virtual machine
-					myVM := virtualmachine.NewVirtualmachine("os", LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH, 1, 1, "test123")
+					myVM := virtualmachine.NewVirtualmachine("os", LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH, 1, 1, vmName)
 					myVM.CreateVirtualmachine()
 
 					return nil
@@ -254,4 +279,14 @@ func ValidateOSImage(filePath string, validSHA256sum string) (err error) {
 	}
 
 	return nil
+}
+
+// Return vm details
+func GetVM(vmName string) (vm *libvirt.Domain, err error) {
+	vm = virtualmachine.GetVirtualMachine(vmName)
+	if vm == nil {
+		return nil, errors.New("virtual machine does not exist")
+	}
+
+	return vm, nil
 }
