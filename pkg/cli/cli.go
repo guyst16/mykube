@@ -138,6 +138,8 @@ func Cli() {
 					myVM := virtualmachine.NewVirtualmachine("os", LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH, 1, 1, vmName)
 					myVM.CreateVirtualmachine()
 
+					// Start mykube virtual machine
+					virtualmachine.StartVM(vmName)
 					return nil
 				},
 			},
@@ -284,7 +286,7 @@ func ValidateOSImage(filePath string, validSHA256sum string) (err error) {
 // Return vm details
 func GetVM(vmName string) (vm *libvirt.Domain, err error) {
 	vm = virtualmachine.GetVirtualMachine(vmName)
-	if vm == nil {
+	if vm.Name == "" {
 		return nil, errors.New("virtual machine does not exist")
 	}
 

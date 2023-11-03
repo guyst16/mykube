@@ -25,19 +25,10 @@ func NewVirtualmachine(os_name string, os_path string, cloudconfig_path string, 
 	return &v
 }
 
-func GetVirtualMachine(vmName string) (vm *libvirt.Domain) {
+func GetVirtualMachine(vmName string) (dom *libvirt.Domain) {
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
-	for state := range STATES {
-		flags := state
-		domains, _, _ := libvirtconn.ConnectListAllDomains(1, flags)
-		for _, vm := range domains {
-			if vm.Name == vmName {
-				return &vm
-			}
-		}
-	}
-
-	return nil
+	vm, _ := libvirtconn.DomainLookupByName(vmName)
+	return &vm
 }
 
 func ListAllVirtualmachines() {
@@ -59,14 +50,22 @@ func (vm Virtualmachine) CreateVirtualmachine() {
 	vmXML := ModifyXML("assets/vmTemplate.xml", vm.name, vm.os_path, vm.cloudconfig_path)
 
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
-	// vmXMLBytes, err := os.ReadFile("assets/vmTemplate.xml")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-	// vmXMLString := string(vmXMLBytes)
-	// libvirtconn.DomainDefineXML(vmXMLString)
 	vmXMLString := string(vmXML)
 	_, err := libvirtconn.DomainDefineXML(vmXMLString)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Start defined vm
+func StartVM(vmName string) {
+
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
+	domain := GetVirtualMachine(vmName)
+	if domain == nil {
+		log.Fatal("Virtual machine not defined")
+	}
+	err := libvirtconn.DomainCreate(*domain)
 	if err != nil {
 		log.Fatal(err)
 	}
