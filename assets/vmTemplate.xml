@@ -1,0 +1,63 @@
+<domain type='kvm'>
+  <name>test</name>
+  <memory unit='KiB'>2097152</memory>
+  <currentMemory unit='KiB'>2097152</currentMemory>
+  <vcpu placement='static'>2</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-q35-7.2'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu mode='host-passthrough' check='none' migratable='on'/>
+  <clock offset='utc'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/var/lib/libvirt/images/Fedora-Cloud-Base-38-1.6.x86_64.qcow2'/>
+      <target dev='vda' bus='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
+    </disk>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/cidata.iso'/>
+      <target dev='sda' bus='sata'/>
+      <readonly/>
+      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+    </disk>
+    <interface type='network'>
+      <source network='default'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
+    </interface>
+    <serial type='pty'>
+      <target type='isa-serial' port='0'>
+        <model name='isa-serial'/>
+      </target>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <channel type='unix'>
+      <target type='virtio' name='org.qemu.guest_agent.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
+    <graphics type='vnc' port='-1' autoport='yes' listen='0.0.0.0'>
+      <listen type='address' address='0.0.0.0'/>
+    </graphics>
+  </devices>
+</domain>
