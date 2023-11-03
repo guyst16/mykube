@@ -139,15 +139,23 @@ func Cli() {
 					myVM.CreateVirtualmachine()
 
 					// Start mykube virtual machine
-					virtualmachine.StartVM(vmName)
+					virtualmachine.StartVirtualMachine(vmName)
 					return nil
 				},
 			},
 			{
 				Name:  "delete",
 				Usage: "delete a single node K8S",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "vm_name",
+						Usage:       "Name of the K8S cluster",
+						Required:    true,
+						Destination: &vmName,
+					},
+				},
 				Action: func(ctx *cli.Context) error {
-					fmt.Printf("delete %s\n", ctx.Args().Get(0))
+					virtualmachine.DeleteVirtualMachine(vmName)
 					return nil
 				},
 			},

@@ -46,9 +46,7 @@ func ListAllVirtualmachines() {
 }
 
 func (vm Virtualmachine) CreateVirtualmachine() {
-
 	vmXML := ModifyXML("assets/vmTemplate.xml", vm.name, vm.os_path, vm.cloudconfig_path)
-
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
 	vmXMLString := string(vmXML)
 	_, err := libvirtconn.DomainDefineXML(vmXMLString)
@@ -58,14 +56,30 @@ func (vm Virtualmachine) CreateVirtualmachine() {
 }
 
 // Start defined vm
-func StartVM(vmName string) {
-
+func StartVirtualMachine(vmName string) {
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
 	domain := GetVirtualMachine(vmName)
 	if domain == nil {
 		log.Fatal("Virtual machine not defined")
 	}
 	err := libvirtconn.DomainCreate(*domain)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Delete defined vm
+func DeleteVirtualMachine(vmName string) {
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
+	domain := GetVirtualMachine(vmName)
+	if domain == nil {
+		log.Fatal("Virtual machine not defined")
+	}
+	err := libvirtconn.DomainUndefine(*domain)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = libvirtconn.DomainDestroy(*domain)
 	if err != nil {
 		log.Fatal(err)
 	}
