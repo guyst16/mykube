@@ -40,7 +40,6 @@ func ListAllVirtualmachines() {
 		domains, _, _ := libvirtconn.ConnectListAllDomains(1, flags)
 		for _, vm := range domains {
 			fmt.Printf("%d\t%s\t%x\t%s\n", vm.ID, vm.Name, vm.UUID, STATES[state])
-			print(libvirtconn.DomainGetXMLDesc(vm, 1))
 		}
 	}
 }

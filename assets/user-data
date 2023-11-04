@@ -62,9 +62,6 @@ write_files:
     cnRzLzAvbm9kZVBvcnQiLCAidmFsdWUiOiAzMTAwMH1dJw==
   path: /mnt/install-k8s.sh
   permissions: "0777"
-- content: |
-    CREATED BY GUY STEINBERGER!!!
-  path: /mnt/test-guy-init-file.txt
 
 runcmd:
 - sudo /mnt/install-k8s.sh
