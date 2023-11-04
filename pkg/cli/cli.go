@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/google/uuid"
 	"github.com/guyst16/mykube/pkg/embedfiles"
 	"github.com/guyst16/mykube/pkg/virtualmachine"
 	"github.com/kdomanski/iso9660"
@@ -99,10 +98,8 @@ func Cli() {
 						DownloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
 					}
 
-					vm_uuid := uuid.New()
-
 					// Create VM directory and copy image
-					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vm_uuid.String()
+					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
 					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
 					if err != nil {
@@ -156,6 +153,8 @@ func Cli() {
 				},
 				Action: func(ctx *cli.Context) error {
 					virtualmachine.DeleteVirtualMachine(vmName)
+					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
+					os.RemoveAll(LIBVIRT_MYKUBE_VM_DIR)
 					return nil
 				},
 			},
