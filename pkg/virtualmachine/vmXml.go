@@ -27,7 +27,6 @@ type disk struct {
 	Driver  diskSubTag `xml:"driver"`
 	Source  source     `xml:"source"`
 	Target  diskSubTag `xml:"target"`
-	Address diskSubTag `xml:"address"`
 }
 
 type devices struct {
