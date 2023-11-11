@@ -9,10 +9,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/cheggaaa/pb"
 	"github.com/digitalocean/go-libvirt"
+	"github.com/dustin/go-humanize"
 	"github.com/guyst16/mykube/pkg/embedfiles"
 	"github.com/guyst16/mykube/pkg/virtualmachine"
 	"github.com/kdomanski/iso9660"
@@ -26,7 +29,7 @@ var LIBVIRT_MYKUBE_UTIL_DIR = LIBVIRT_MYKUBE_DIR + "/" + "util"
 var DIRECTORIES_UTIL = [3]string{}
 
 // Utils
-var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://download.fedoraproject.org/pub/fedora/linux/releases/38/Cloud/x86_64/images/Fedora-Cloud-Base-38-1.6.x86_64.qcow2"
+var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/Feat/Refactor_Golang/image-assets/Base-image.qcow2?download="
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-image.qcow2"
 var LIBVIRT_MYKUBE_VM_DIR = ""
 var LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = ""
@@ -36,7 +39,7 @@ var LIBVIRT_MYKUBE_UTIL_METADATA_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "meta-da
 var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cidata.iso"
 
 // Valid
-var OS_IMAGE_SHA256SUM = "d334670401ff3d5b4129fcc662cf64f5a6e568228af59076cc449a4945318482"
+var OS_IMAGE_SHA256SUM = "cafd46df34c9dacb981391e339e00ae582bdcd5d42441bd2708ab54cc5ee856e"
 
 // TODO: Handle all err inside the helpers functions
 func Cli() {
@@ -182,6 +185,29 @@ func Cli() {
 	}
 }
 
+// Progress bar type and functions
+type WriteCounter struct {
+	Total uint64
+}
+
+func (wc *WriteCounter) Write(p []byte) (int, error) {
+	n := len(p)
+	wc.Total += uint64(n)
+	wc.PrintProgress()
+	return n, nil
+}
+
+func (wc WriteCounter) PrintProgress() {
+	// Clear the line by using a character return to go back to the start and remove
+	// the remaining characters by filling it with spaces
+	fmt.Printf("\r%s", strings.Repeat(" ", 35))
+
+	// Return again and print current status of download
+	// We use the humanize package to print the bytes in a meaningful way (e.g. 10 MB)
+	fmt.Printf("\rDownloading... %s complete", humanize.Bytes(wc.Total))
+}
+
+// Download files to specific destination
 func DownloadFile(filepath string, url string) (err error) {
 
 	// Create the file
@@ -197,6 +223,22 @@ func DownloadFile(filepath string, url string) (err error) {
 		return err
 	}
 	defer resp.Body.Close()
+
+	// Get file size
+	i, _ := strconv.Atoi(resp.Header.Get("Content-Length"))
+	fileSize := int64(i)
+
+	// create bar
+	bar := pb.New(int(fileSize)).SetUnits(pb.U_BYTES).SetRefreshRate(time.Millisecond * 10)
+	bar.ShowSpeed = true
+	bar.Start()
+
+	// create proxy reader
+	reader := bar.NewProxyReader(resp.Body)
+
+	// and copy from reader
+	io.Copy(out, reader)
+	bar.Finish()
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {

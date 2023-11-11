@@ -3,8 +3,15 @@ module github.com/guyst16/mykube
 go 1.20
 
 require (
+	github.com/cheggaaa/pb v1.0.29
 	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
+	github.com/dustin/go-humanize v1.0.1
 	github.com/kdomanski/iso9660 v0.4.0
+)
+
+require (
+	github.com/mattn/go-runewidth v0.0.4 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 )
 
 require (
