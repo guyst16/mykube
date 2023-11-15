@@ -7,6 +7,7 @@ require (
 	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kdomanski/iso9660 v0.4.0
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
 
 require (

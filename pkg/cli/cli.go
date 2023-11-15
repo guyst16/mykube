@@ -177,6 +177,18 @@ func Cli() {
 					return nil
 				},
 			},
+			{
+				Name:  "test",
+				Usage: "list all single nodes K8S",
+				Action: func(ctx *cli.Context) error {
+					addr, err := virtualmachine.GetVirtualMachineIP("test")
+					if err != nil {
+						log.Fatal(err)
+					}
+					fmt.Print(addr)
+					return nil
+				},
+			},
 		},
 	}
 
@@ -270,6 +282,7 @@ func CopyFile(src string, dest string) (err error) {
 	return err
 }
 
+// Create new cidata ISO file
 func CreateISO(filesListFullPath []string, outputISOPath string) {
 	writer, err := iso9660.NewWriter()
 	if err != nil {

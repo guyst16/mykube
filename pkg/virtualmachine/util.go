@@ -1,11 +1,14 @@
 package virtualmachine
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/guyst16/mykube/pkg/libvirtconn"
+	"golang.org/x/crypto/ssh"
 )
 
 type Virtualmachine struct {
@@ -82,4 +85,66 @@ func DeleteVirtualMachine(vmName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Get virtual machine public IP
+func GetVirtualMachineIP(vmName string) (vmIPAddress string, err error) {
+	libvirtconn := libvirtconn.ConnectLibvirtLocal()
+	domain := GetVirtualMachine(vmName)
+	domainIPAddress := ""
+	if domain == nil {
+		return domainIPAddress, errors.New("virtual machine not defined")
+	}
+
+	// Get list of the domain interfaces addresses
+	intrefacesList, err := libvirtconn.DomainInterfaceAddresses(*domain, 0, 0)
+	if err != nil {
+		return domainIPAddress, err
+	}
+
+	if len(intrefacesList) == 0 {
+		return domainIPAddress, errors.New("domain " + vmName + " doesn't have an IP address")
+	}
+
+	return intrefacesList[0].Addrs[0].Addr, nil
+}
+
+// Get ssh client for a virtaul machine
+func GetVirtualMachineSSHConnection(vmName string) {
+	var hostKey ssh.PublicKey
+	// An SSH client is represented with a ClientConn.
+	//
+	// To authenticate with the remote server you must pass at least one
+	// implementation of AuthMethod via the Auth field in ClientConfig,
+	// and provide a HostKeyCallback.
+	config := &ssh.ClientConfig{
+		User: "username",
+		Auth: []ssh.AuthMethod{
+			ssh.Password("yourpassword"),
+		},
+		HostKeyCallback: ssh.FixedHostKey(hostKey),
+	}
+	client, err := ssh.Dial("tcp", "yourserver.com:22", config)
+	if err != nil {
+		log.Fatal("Failed to dial: ", err)
+	}
+	defer client.Close()
+
+	// Each ClientConn can support multiple interactive sessions,
+	// represented by a Session.
+	session, err := client.NewSession()
+	if err != nil {
+		log.Fatal("Failed to create session: ", err)
+	}
+	defer session.Close()
+
+	// Once a Session is created, you can execute a single command on
+	// the remote side using the Run method.
+	var b bytes.Buffer
+	session.Stdout = &b
+	if err := session.Run("/usr/bin/whoami"); err != nil {
+		log.Fatal("Failed to run: " + err.Error())
+	}
+	fmt.Println(b.String())
+
 }
