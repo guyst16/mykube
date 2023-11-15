@@ -23,12 +23,15 @@ import (
 )
 
 // Directories
-var MAIN_DIR = ".mykube"
+var ASSETS_MYKUBE_DIR = ".mykube"
+var ASSETS_MYKUBE_VM_DIR = ""
 var LIBVIRT_MYKUBE_DIR = "/var/lib/libvirt/images/mykube"
 var LIBVIRT_MYKUBE_UTIL_DIR = LIBVIRT_MYKUBE_DIR + "/" + "util"
 var DIRECTORIES_UTIL = [3]string{}
 
 // Utils
+// TODO: REPLACE BASE IMAGE URL AND EXTRACT TAR FILE
+// var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://docs.google.com/uc?export=download&confirm=t&id=1yPZ8nk9PeRyek2tRGRkeZVWbaapLbeou"
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/Feat/Refactor_Golang/image-assets/Base-image.qcow2?download="
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-image.qcow2"
 var LIBVIRT_MYKUBE_VM_DIR = ""
@@ -80,8 +83,8 @@ func Cli() {
 						log.Fatal(err)
 					}
 
-					MAIN_DIR = userHomeDir + "/" + MAIN_DIR
-					DIRECTORIES_UTIL = [...]string{MAIN_DIR, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
+					ASSETS_MYKUBE_DIR = userHomeDir + "/" + ASSETS_MYKUBE_DIR
+					DIRECTORIES_UTIL = [...]string{ASSETS_MYKUBE_DIR, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
 
 					// Validate directories existence
 					for _, dir := range DIRECTORIES_UTIL {
@@ -101,7 +104,8 @@ func Cli() {
 						DownloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
 					}
 
-					// Create VM directory and copy image
+					// Create Libvirt vm directory, assets vm directory and copy image
+					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR + "/" + vmName
 					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
 					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
