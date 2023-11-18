@@ -36,9 +36,8 @@ var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-image.qcow2"
 var LIBVIRT_MYKUBE_VM_DIR = ""
 var LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = ""
-var LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH = ""
-var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "user-data"
-var LIBVIRT_MYKUBE_UTIL_METADATA_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "meta-data"
+var LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH = ""
+var LIBVIRT_MYKUBE_VM_METADATA_PATH = ""
 var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cidata.iso"
 
 // Valid
@@ -77,7 +76,7 @@ func Cli() {
 						log.Fatalf("Virtual machine named %q already exists", vmName)
 					}
 
-					// Create home directory
+					// Get home directory
 					userHomeDir, err := os.UserHomeDir()
 					if err != nil {
 						log.Fatal(err)
@@ -107,6 +106,8 @@ func Cli() {
 					// Create Libvirt vm directory, assets vm directory and copy image
 					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR + "/" + vmName
 					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
+					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "user-data"
+					LIBVIRT_MYKUBE_VM_METADATA_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "meta-data"
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
 					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
 					if err != nil {
@@ -116,27 +117,44 @@ func Cli() {
 					if err != nil {
 						log.Fatal(err)
 					}
+					err = os.Mkdir(ASSETS_MYKUBE_VM_DIR, 0744)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					// Generate ssh key pair inside vm directory
+					err = virtualmachine.CreateVirtualmachineSSHKeyPair(ASSETS_MYKUBE_VM_DIR)
+					if err != nil {
+						log.Fatal(err)
+					}
 
 					// Create meta-data files and iso
 					cloudConfigContent, _ := embedfiles.InnerReadFile("assets/user-data")
 					metaDataContent, _ := embedfiles.InnerReadFile("assets/meta-data")
 
-					err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, cloudConfigContent, 0644)
+					vmPubKey, err := os.ReadFile(ASSETS_MYKUBE_VM_DIR + "/public_key.pem")
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					cloudConfigContent = virtualmachine.InjectSSHKeyIntoUserDataYamlFile(cloudConfigContent, string(vmPubKey))
+
+					fmt.Print(string(cloudConfigContent))
+
+					err = os.WriteFile(LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH, cloudConfigContent, 0644)
 					if err != nil {
 						return err
 					}
 
-					err = os.WriteFile(LIBVIRT_MYKUBE_UTIL_METADATA_PATH, metaDataContent, 0644)
+					err = os.WriteFile(LIBVIRT_MYKUBE_VM_METADATA_PATH, metaDataContent, 0644)
 					if err != nil {
 						return err
 					}
 
-					cloudConfigFilesArr := []string{LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_PATH, LIBVIRT_MYKUBE_UTIL_METADATA_PATH}
-					CreateISO(cloudConfigFilesArr, LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH)
-
-					// Copy cloud config ISO to VM directory
-					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/")[len(strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/"))-1]
-					CopyFile(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH)
+					// Create cloud config ISO in VM directory
+					cloudConfigFilesArr := []string{LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH, LIBVIRT_MYKUBE_VM_METADATA_PATH}
+					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH := LIBVIRT_MYKUBE_VM_DIR + "/" + strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/")[len(strings.Split(LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH, "/"))-1]
+					CreateISO(cloudConfigFilesArr, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH)
 
 					// Create mykube virtual machine
 					myVM := virtualmachine.NewVirtualmachine("os", LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_VM_CLOUDCONFIG_ISO_PATH, 1, 1, vmName)
@@ -159,9 +177,22 @@ func Cli() {
 					},
 				},
 				Action: func(ctx *cli.Context) error {
-					virtualmachine.DeleteVirtualMachine(vmName)
+					err := virtualmachine.DeleteVirtualMachine(vmName)
+					if err != nil {
+						log.Print(err.Error())
+					}
+
 					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
+					// Get home directory
+					userHomeDir, err := os.UserHomeDir()
+					if err != nil {
+						log.Fatal(err)
+					}
+					ASSETS_MYKUBE_DIR = userHomeDir + "/" + ASSETS_MYKUBE_DIR
+					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR + "/" + vmName
 					os.RemoveAll(LIBVIRT_MYKUBE_VM_DIR)
+					os.RemoveAll(ASSETS_MYKUBE_VM_DIR)
+
 					return nil
 				},
 			},

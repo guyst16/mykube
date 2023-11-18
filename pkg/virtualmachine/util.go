@@ -7,7 +7,6 @@ import (
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/guyst16/mykube/pkg/libvirtconn"
-	"golang.org/x/crypto/ssh"
 )
 
 type Virtualmachine struct {
@@ -70,20 +69,22 @@ func StartVirtualMachine(vmName string) {
 }
 
 // Delete defined vm
-func DeleteVirtualMachine(vmName string) {
+func DeleteVirtualMachine(vmName string) (err error) {
 	libvirtconn := libvirtconn.ConnectLibvirtLocal()
 	domain := GetVirtualMachine(vmName)
 	if domain == nil {
-		log.Fatal("Virtual machine not defined")
+		return errors.New("vm undefined")
 	}
-	err := libvirtconn.DomainUndefine(*domain)
+	err = libvirtconn.DomainUndefine(*domain)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	err = libvirtconn.DomainDestroy(*domain)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
 // Get virtual machine public IP
@@ -108,23 +109,20 @@ func GetVirtualMachineIP(vmName string) (vmIPAddress string, err error) {
 	return intrefacesList[0].Addrs[0].Addr, nil
 }
 
-// Get ssh client for a virtaul machine
-func GetVirtualMachineSSHConnection(vmName string) {
-	var hostKey ssh.PublicKey
+// // Get ssh client for a virtaul machine
+// func GetVirtualMachineSSHConnection(vmName string) {
+// 	var hostKey ssh.PublicKey
 
-	config := &ssh.ClientConfig{
-		User: "sumit",
-		Auth: []ssh.AuthMethod{
-			ssh.PublicKeys(""),
-		},
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-	client, err := ssh.Dial("tcp", "yourserver.com:22", config)
-	if err != nil {
-		log.Fatal("Failed to dial: ", err)
-	}
+// 	config := &ssh.ClientConfig{
+// 		User: "sumit",
+// 		Auth: []ssh.AuthMethod{
+// 			ssh.PublicKeys(""),
+// 		},
+// 		HostKeyCallback: ssh.FixedHostKey(hostKey),
+// 	}
+// 	client, err := ssh.Dial("tcp", "yourserver.com:22", config)
+// 	if err != nil {
+// 		log.Fatal("Failed to dial: ", err)
+// 	}
 
-}
-
-// Create ssh key for a virtual machine
-func CreateVirtualmachineSHHKey(vmName string, outputKeyPath string)
+// }

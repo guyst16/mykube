@@ -8,6 +8,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kdomanski/iso9660 v0.4.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
