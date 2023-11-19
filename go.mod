@@ -7,13 +7,15 @@ require (
 	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kdomanski/iso9660 v0.4.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	github.com/pkg/sftp v1.13.6
+	golang.org/x/crypto v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
-	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
 
 require (

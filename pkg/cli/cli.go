@@ -20,6 +20,7 @@ import (
 	"github.com/guyst16/mykube/pkg/virtualmachine"
 	"github.com/kdomanski/iso9660"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/crypto/ssh"
 )
 
 // Directories
@@ -162,6 +163,52 @@ func Cli() {
 
 					// Start mykube virtual machine
 					virtualmachine.StartVirtualMachine(vmName)
+
+					log.Print("Wait for the cluster to get created, could take 5-10 minutes...")
+
+					// Wait for vm get ip
+					vmIP := ""
+					for vmIP == "" {
+						vmIP, _ = virtualmachine.GetVirtualMachineIP(vmName)
+					}
+
+					var sshConnection *ssh.Client
+					for {
+						sshConnection, err = virtualmachine.GetVirtualMachineSSHConnection(vmName, ASSETS_MYKUBE_VM_DIR+"/private_key.pem")
+						if err != nil {
+							log.Print("no ssh conn")
+							log.Print(err)
+							time.Sleep(2 * time.Second)
+							continue
+						} else {
+							sess, err := sshConnection.NewSession()
+							if err != nil {
+								log.Fatalln("new session errored", err)
+							}
+							defer sess.Close()
+
+							// running this command to get the sftp-server path, as it can vary from system to system
+							newFilePath := "/tmp/admin.conf"
+							_, err = sess.Output("sudo cp /etc/kubernetes/admin.conf " + newFilePath + " && sudo chmod 777 " + newFilePath)
+							if err != nil {
+								time.Sleep(10 * time.Second)
+								continue
+							}
+							err = virtualmachine.CopyFileFromVirtualMachineToHost(sshConnection, newFilePath, ASSETS_MYKUBE_VM_DIR+"/kube.conf")
+							if err != nil {
+								log.Print("no kube conf")
+								log.Print(err)
+								time.Sleep(10 * time.Second)
+								continue
+							}
+							break
+						}
+					}
+
+					fmt.Println("Done!\n\nTo connect the cluster please run:\n$ export KUBECONFIG=" + ASSETS_MYKUBE_VM_DIR + "/kube.conf")
+					fmt.Println("Or use the console:\nhttps://" + vmIP + ":31000\n")
+					fmt.Println("The console pods will be up in 2-3 minutes")
+
 					return nil
 				},
 			},

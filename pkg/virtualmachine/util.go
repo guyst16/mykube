@@ -3,10 +3,14 @@ package virtualmachine
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"os"
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/guyst16/mykube/pkg/libvirtconn"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 )
 
 type Virtualmachine struct {
@@ -109,20 +113,90 @@ func GetVirtualMachineIP(vmName string) (vmIPAddress string, err error) {
 	return intrefacesList[0].Addrs[0].Addr, nil
 }
 
-// // Get ssh client for a virtaul machine
-// func GetVirtualMachineSSHConnection(vmName string) {
-// 	var hostKey ssh.PublicKey
+// Copy file from vm to host
+func CopyFileFromVirtualMachineToHost(sshClient *ssh.Client, remoteFilePath string, localFilePath string) (err error) {
+	defer sshClient.Close()
 
-// 	config := &ssh.ClientConfig{
-// 		User: "sumit",
-// 		Auth: []ssh.AuthMethod{
-// 			ssh.PublicKeys(""),
-// 		},
-// 		HostKeyCallback: ssh.FixedHostKey(hostKey),
-// 	}
-// 	client, err := ssh.Dial("tcp", "yourserver.com:22", config)
-// 	if err != nil {
-// 		log.Fatal("Failed to dial: ", err)
-// 	}
+	// Open an SFTP session on the remote machine
+	sftpClient, err := sftp.NewClient(sshClient)
+	if err != nil {
+		fmt.Println("Failed to create SFTP client:", err)
+		return
+	}
+	defer sftpClient.Close()
 
-// }
+	// Check if the file exists
+	_, err = sftpClient.Stat("/etc/kubernetes/admin.conf")
+	if err != nil {
+		return err
+	}
+
+	// Copy file to local
+	// File exists, open the remote file
+	remoteFile, err := sftpClient.Open(remoteFilePath)
+	if err != nil {
+		fmt.Println("Error opening remote file:", err)
+		return
+	}
+	defer remoteFile.Close()
+
+	// Create a local file to copy the contents to
+	localFile, err := os.Create(localFilePath)
+	if err != nil {
+		fmt.Println("Error creating local file:", err)
+		return
+	}
+	defer localFile.Close()
+
+	// Copy the contents of the remote file to the local file
+	_, err = io.Copy(localFile, remoteFile)
+	if err != nil {
+		fmt.Println("Error copying file:", err)
+		return
+	}
+
+	return nil
+}
+
+// Get ssh client for a virtaul machine
+func GetVirtualMachineSSHConnection(vmName string, vmPubKeyPath string) (shhClient *ssh.Client, err error) {
+	privateKey, err := LoadPrivateKeyFromFile(vmPubKeyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	config := &ssh.ClientConfig{
+		User: "sumit",
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(privateKey),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	vmIP, err := GetVirtualMachineIP(vmName)
+	if err != nil {
+		return nil, err
+	}
+
+	sshClient, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", vmIP, 22), config)
+	if err != nil {
+		return nil, err
+	}
+
+	return sshClient, nil
+}
+
+func LoadPrivateKeyFromFile(filePath string) (ssh.Signer, error) {
+	// Read the contents of the file
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	key, err := ssh.ParsePrivateKey(fileContent)
+	if err != nil {
+		return nil, err
+	}
+
+	return key, nil
+}
