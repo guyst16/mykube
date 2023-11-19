@@ -43,6 +43,8 @@ var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "
 
 // Valid
 var OS_IMAGE_SHA256SUM = "cafd46df34c9dacb981391e339e00ae582bdcd5d42441bd2708ab54cc5ee856e"
+var QEMU_GID = 107
+var QEMU_UID = 107
 
 // TODO: Handle all err inside the helpers functions
 func Cli() {
@@ -97,6 +99,11 @@ func Cli() {
 						}
 					}
 
+					err = os.Chown(LIBVIRT_MYKUBE_DIR, QEMU_UID, QEMU_GID)
+					if err != nil {
+						log.Fatal(err)
+					}
+
 					err = ValidateOSImage(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, OS_IMAGE_SHA256SUM)
 					if err != nil {
 						// Download cloud base image
@@ -111,6 +118,10 @@ func Cli() {
 					LIBVIRT_MYKUBE_VM_METADATA_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "meta-data"
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
 					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
+					if err != nil {
+						log.Fatal(err)
+					}
+					err = os.Chown(LIBVIRT_MYKUBE_VM_DIR, QEMU_UID, QEMU_GID)
 					if err != nil {
 						log.Fatal(err)
 					}
