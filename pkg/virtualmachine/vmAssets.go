@@ -78,7 +78,6 @@ func writeKeyToFile(keyBytes []byte, saveFileTo string) error {
 		return err
 	}
 
-	log.Printf("Key saved to: %s", saveFileTo)
 	return nil
 }
 

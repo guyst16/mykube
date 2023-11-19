@@ -151,8 +151,6 @@ func Cli() {
 
 					cloudConfigContent = virtualmachine.InjectSSHKeyIntoUserDataYamlFile(cloudConfigContent, string(vmPubKey))
 
-					fmt.Print(string(cloudConfigContent))
-
 					err = os.WriteFile(LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH, cloudConfigContent, 0644)
 					if err != nil {
 						return err
@@ -187,7 +185,7 @@ func Cli() {
 					for {
 						sshConnection, err = virtualmachine.GetVirtualMachineSSHConnection(vmName, ASSETS_MYKUBE_VM_DIR+"/private_key.pem")
 						if err != nil {
-							log.Print("no ssh conn")
+							log.Print("Wait for ssh connection... try again in 2 seconds")
 							log.Print(err)
 							time.Sleep(2 * time.Second)
 							continue
@@ -219,6 +217,12 @@ func Cli() {
 					fmt.Println("Done!\n\nTo connect the cluster please run:\n$ export KUBECONFIG=" + ASSETS_MYKUBE_VM_DIR + "/kube.conf")
 					fmt.Println("Or use the console:\nhttps://" + vmIP + ":31000\n")
 					fmt.Println("The console pods will be up in 2-3 minutes")
+					fmt.Println("\nLogin to console by creating new cluster-admin token:")
+					fmt.Println("$ kubectl create serviceaccount mykube-admin --namespace default")
+					fmt.Println("$ kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount default:mykube-admin  mykube-admin-rb")
+					fmt.Println("$ kubectl create token mykube-admin --namespace default")
+					fmt.Println("\nCopy token and paste in console")
+					fmt.Println("Visit repo here: https://github.com/guyst16/mykube")
 
 					return nil
 				},
