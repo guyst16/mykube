@@ -32,7 +32,6 @@ var DIRECTORIES_UTIL = [3]string{}
 
 // Utils
 // TODO: REPLACE BASE IMAGE URL AND EXTRACT TAR FILE
-// var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://docs.google.com/uc?export=download&confirm=t&id=1yPZ8nk9PeRyek2tRGRkeZVWbaapLbeou"
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/Feat/Refactor_Golang/image-assets/Base-image.qcow2?download="
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-image.qcow2"
 var LIBVIRT_MYKUBE_VM_DIR = ""
@@ -107,7 +106,8 @@ func Cli() {
 					err = ValidateOSImage(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, OS_IMAGE_SHA256SUM)
 					if err != nil {
 						// Download cloud base image
-						log.Print("Download OS image file")
+						log.Println("Download OS image file")
+						log.Println("This file being downloaded ONLY once - your next virtual machine creations will be faster!")
 						DownloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
 					}
 

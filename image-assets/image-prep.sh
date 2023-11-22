@@ -34,10 +34,16 @@ sudo systemctl enable --now kubelet
 #Install containerd
 sudo yum install -y containerd
 sudo systemctl enable --now containerd
-
 sudo sh -c "containerd config default > /etc/containerd/config.toml" 
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/'  /etc/containerd/config.toml
 
-######################################################
-# TODO: Document about virt-customize the base image #
-######################################################
+#Install docker engine
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable docker
+
+#################################################################################################
+# TODO: Document about virt-customize the base image                                            #
+# virt-customize --run /home/guy/Projects/mykube/image-assets/image-prep.sh -a Base-image.qcow2 #
+#################################################################################################
