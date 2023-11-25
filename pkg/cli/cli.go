@@ -32,7 +32,8 @@ var DIRECTORIES_UTIL = [3]string{}
 
 // Utils
 // TODO: REPLACE BASE IMAGE URL AND EXTRACT TAR FILE
-var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/Feat/Refactor_Golang/image-assets/Base-image.qcow2?download="
+// var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://github.com/guyst16/mykube/raw/Feat/Refactor_Golang/image-assets/Base-image.qcow2?download="
+var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL = "https://drive.google.com/uc?export=download&confirm=t&id=1x727Dbkze9gAXH_E6m-UfQddhIuFt-63"
 var LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "Base-image.qcow2"
 var LIBVIRT_MYKUBE_VM_DIR = ""
 var LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = ""
@@ -41,7 +42,7 @@ var LIBVIRT_MYKUBE_VM_METADATA_PATH = ""
 var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cidata.iso"
 
 // Valid
-var OS_IMAGE_SHA256SUM = "29b14a5e37069d66f6011bd40767e72f76df842ff89062b3b7bec2d9e7bc1772"
+var OS_IMAGE_SHA256SUM = "cafd46df34c9dacb981391e339e00ae582bdcd5d42441bd2708ab54cc5ee856e"
 var QEMU_GID = 107
 var QEMU_UID = 107
 
