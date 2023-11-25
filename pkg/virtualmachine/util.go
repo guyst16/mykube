@@ -200,3 +200,31 @@ func LoadPrivateKeyFromFile(filePath string) (ssh.Signer, error) {
 
 	return key, nil
 }
+
+// Print cluster connection details
+func GetConnectionDetails(vmName string, mykubeAssetsDir string) (err error) {
+	// Validate virtual machine has an IP
+	vmIP, err := GetVirtualMachineIP(vmName)
+	if err != nil {
+		return err
+	}
+
+	// Get home directory
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ASSETS_MYKUBE_DIR := userHomeDir + "/" + mykubeAssetsDir
+	ASSETS_MYKUBE_VM_DIR := ASSETS_MYKUBE_DIR + "/" + vmName
+
+	fmt.Println("Virtual machine is up and running")
+	fmt.Println("To connect the cluster please run:\n$ export KUBECONFIG=" + ASSETS_MYKUBE_VM_DIR + "/kube.conf")
+	fmt.Println("Or use the console:\nhttps://" + vmIP + ":31000")
+	fmt.Println("\nLogin to console by creating new cluster-admin token:")
+	fmt.Println("$ kubectl create serviceaccount mykube-admin --namespace default")
+	fmt.Println("$ kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount default:mykube-admin  mykube-admin-rb")
+	fmt.Println("$ kubectl create token mykube-admin --namespace default")
+	fmt.Println("\nCopy token and paste in console")
+
+	return nil
+}

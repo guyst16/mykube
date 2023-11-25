@@ -66,7 +66,7 @@ func Cli() {
 				Usage: "Create a single node K8S",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:        "vm_name",
+						Name:        "domain",
 						Usage:       "Name of the K8S cluster",
 						Required:    true,
 						Destination: &vmName,
@@ -85,8 +85,8 @@ func Cli() {
 						log.Fatal(err)
 					}
 
-					ASSETS_MYKUBE_DIR = userHomeDir + "/" + ASSETS_MYKUBE_DIR
-					DIRECTORIES_UTIL = [...]string{ASSETS_MYKUBE_DIR, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
+					ASSETS_MYKUBE_DIR_LOCAL := userHomeDir + "/" + ASSETS_MYKUBE_DIR
+					DIRECTORIES_UTIL = [...]string{ASSETS_MYKUBE_DIR_LOCAL, LIBVIRT_MYKUBE_DIR, LIBVIRT_MYKUBE_UTIL_DIR}
 
 					// Validate directories existence
 					for _, dir := range DIRECTORIES_UTIL {
@@ -113,7 +113,7 @@ func Cli() {
 					}
 
 					// Create Libvirt vm directory, assets vm directory and copy image
-					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR + "/" + vmName
+					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR_LOCAL + "/" + vmName
 					LIBVIRT_MYKUBE_VM_DIR = LIBVIRT_MYKUBE_DIR + "/" + vmName
 					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "user-data"
 					LIBVIRT_MYKUBE_VM_METADATA_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "meta-data"
@@ -186,8 +186,6 @@ func Cli() {
 					for {
 						sshConnection, err = virtualmachine.GetVirtualMachineSSHConnection(vmName, ASSETS_MYKUBE_VM_DIR+"/private_key.pem")
 						if err != nil {
-							log.Print("Wait for ssh connection... try again in 2 seconds")
-							log.Print(err)
 							time.Sleep(2 * time.Second)
 							continue
 						} else {
@@ -215,14 +213,9 @@ func Cli() {
 						}
 					}
 
-					fmt.Println("Done!\n\nTo connect the cluster please run:\n$ export KUBECONFIG=" + ASSETS_MYKUBE_VM_DIR + "/kube.conf")
-					fmt.Println("Or use the console:\nhttps://" + vmIP + ":31000\n")
-					fmt.Println("The console pods will be up in 2-3 minutes")
-					fmt.Println("\nLogin to console by creating new cluster-admin token:")
-					fmt.Println("$ kubectl create serviceaccount mykube-admin --namespace default")
-					fmt.Println("$ kubectl create clusterrolebinding --clusterrole=cluster-admin --serviceaccount default:mykube-admin  mykube-admin-rb")
-					fmt.Println("$ kubectl create token mykube-admin --namespace default")
-					fmt.Println("\nCopy token and paste in console")
+					fmt.Println("Done!")
+					fmt.Println("\nThe console pods will be up in 2-3 minutes")
+					virtualmachine.GetConnectionDetails(vmName, ASSETS_MYKUBE_DIR)
 					fmt.Println("Visit repo here: https://github.com/guyst16/mykube")
 
 					return nil
@@ -233,7 +226,7 @@ func Cli() {
 				Usage: "delete a single node K8S",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:        "vm_name",
+						Name:        "domain",
 						Usage:       "Name of the K8S cluster",
 						Required:    true,
 						Destination: &vmName,
@@ -251,8 +244,8 @@ func Cli() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					ASSETS_MYKUBE_DIR = userHomeDir + "/" + ASSETS_MYKUBE_DIR
-					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR + "/" + vmName
+					ASSETS_MYKUBE_DIR_LOCAL := userHomeDir + "/" + ASSETS_MYKUBE_DIR
+					ASSETS_MYKUBE_VM_DIR = ASSETS_MYKUBE_DIR_LOCAL + "/" + vmName
 					os.RemoveAll(LIBVIRT_MYKUBE_VM_DIR)
 					os.RemoveAll(ASSETS_MYKUBE_VM_DIR)
 
@@ -262,8 +255,19 @@ func Cli() {
 			{
 				Name:  "connect",
 				Usage: "connect a single node K8S",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:        "domain",
+						Usage:       "Name of the K8S cluster",
+						Required:    true,
+						Destination: &vmName,
+					},
+				},
 				Action: func(ctx *cli.Context) error {
-					fmt.Printf("connect %s\n", ctx.Args().Get(0))
+					err := virtualmachine.GetConnectionDetails(vmName, ASSETS_MYKUBE_DIR)
+					if err != nil {
+						log.Fatal("vm is not up and running")
+					}
 					return nil
 				},
 			},
@@ -272,18 +276,6 @@ func Cli() {
 				Usage: "list all single nodes K8S",
 				Action: func(ctx *cli.Context) error {
 					virtualmachine.ListAllVirtualmachines()
-					return nil
-				},
-			},
-			{
-				Name:  "test",
-				Usage: "list all single nodes K8S",
-				Action: func(ctx *cli.Context) error {
-					addr, err := virtualmachine.GetVirtualMachineIP("test")
-					if err != nil {
-						log.Fatal(err)
-					}
-					fmt.Print(addr)
 					return nil
 				},
 			},
