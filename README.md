@@ -25,42 +25,48 @@ Run the next commands for deploying k8s single-node cluster installation:
 2. Download & install the desired release package
 3. Run the next command for creating the cluster:
 ```
-$ mykube
+$ mykube create --domain <CLUSTER-NAME>
 ```
 
 And you done.
-
-* The command `mykube` is reuseable, which means it will destroy the vm and create a new one if re-executed
 
 ### Need some help?
 
 Ask for help:
 ![Screenshot from 2023-01-22 20-54-50](https://user-images.githubusercontent.com/100173467/213934360-3f867824-674e-4ab1-9415-832f3bf203e2.png)
 
-### Destroy vm
+### Delete cluster
 
 Run the next command:
 
 ```
-$ mykube --destroy
+$ mykube delete --domain <CLUSTER-NAME>
 ```
 
-### Quick ssh to vm
+### List clusters
+
+Run the next command:
+
+```
+$ mykube list
+```
+
+### Get login credentials
 
 Run the command:
 
 ```
-$ mykube --connect
+$ mykube connect --domain <CLUSTER-NAME>
 ```
 
 
-#### (Compatibility) Linux kernel distributions:
+#### (Compatibility - currently) Linux kernel distributions:
 
-- [x] ![Fedora](https://img.shields.io/badge/Fedora-294172?style=for-the-badge&logo=fedora&logoColor=white) - `6.0.5-200.fc36.x86_64`
+- [x] ![Fedora](https://img.shields.io/badge/Fedora-294172?style=for-the-badge&logo=fedora&logoColor=white)
 
-- [ ] ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) 
+- [x] ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) 
 
-- [ ] ![Debian](https://img.shields.io/badge/Debian-D70A53?style=for-the-badge&logo=debian&logoColor=white)
+- [x] ![Debian](https://img.shields.io/badge/Debian-D70A53?style=for-the-badge&logo=debian&logoColor=white)
 
 
 
