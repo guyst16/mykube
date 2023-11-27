@@ -3,7 +3,7 @@
 #Install K8S cluster
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
  
-until sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf taint node hal9000 node-role.kubernetes.io/control-plane-;
+until sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf taint node mykube node-role.kubernetes.io/control-plane-;
 do
     echo "Try untaint node..."
     sleep 1
