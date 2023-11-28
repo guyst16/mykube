@@ -41,7 +41,7 @@ var LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH = ""
 var LIBVIRT_MYKUBE_VM_METADATA_PATH = ""
 var LIBVIRT_MYKUBE_UTIL_CLOUDCONFIG_ISO_PATH = LIBVIRT_MYKUBE_UTIL_DIR + "/" + "cidata.iso"
 
-// Valid
+// Validate
 var OS_IMAGE_SHA256SUM = "cafd46df34c9dacb981391e339e00ae582bdcd5d42441bd2708ab54cc5ee856e"
 var QEMU_GID = 107
 var QEMU_UID = 107
@@ -92,7 +92,7 @@ func Cli() {
 					for _, dir := range DIRECTORIES_UTIL {
 						_, dir_err := os.Stat(dir)
 						if os.IsNotExist(dir_err) {
-							err := os.Mkdir(dir, 0744)
+							err := os.Mkdir(dir, 0777)
 							if err != nil {
 								log.Fatal(err)
 							}
@@ -118,7 +118,7 @@ func Cli() {
 					LIBVIRT_MYKUBE_VM_CLOUDCONFIG_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "user-data"
 					LIBVIRT_MYKUBE_VM_METADATA_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "meta-data"
 					LIBVIRT_MYKUBE_VM_BASE_IMAGE_PATH = LIBVIRT_MYKUBE_VM_DIR + "/" + "Base-image.qcow2"
-					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0744)
+					err = os.Mkdir(LIBVIRT_MYKUBE_VM_DIR, 0777)
 					if err != nil {
 						log.Fatal(err)
 					}
@@ -174,13 +174,17 @@ func Cli() {
 					// Start mykube virtual machine
 					virtualmachine.StartVirtualMachine(vmName)
 
-					log.Print("Wait for the cluster to get created, could take 5-10 minutes...")
+					log.Println("K8S virtual machine created")
+					log.Println("Wait for the cluster to get created, could take 5-10 minutes...")
 
 					// Wait for vm get ip
 					vmIP := ""
 					for vmIP == "" {
 						vmIP, _ = virtualmachine.GetVirtualMachineIP(vmName)
 					}
+
+					log.Println("Wait for a connection")
+					ConStatusMSG := 0
 
 					var sshConnection *ssh.Client
 					for {
@@ -189,11 +193,20 @@ func Cli() {
 							time.Sleep(2 * time.Second)
 							continue
 						} else {
+							if ConStatusMSG == 0 {
+								log.Println("Connection established")
+								ConStatusMSG = 1
+							}
 							sess, err := sshConnection.NewSession()
 							if err != nil {
 								log.Fatalln("new session errored", err)
 							}
 							defer sess.Close()
+
+							if ConStatusMSG == 1 {
+								log.Println("Wait for cluster to get ready, could take a couple of minutes...")
+								ConStatusMSG = 2
+							}
 
 							// running this command to get the sftp-server path, as it can vary from system to system
 							newFilePath := "/tmp/admin.conf"
