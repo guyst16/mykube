@@ -1,8 +1,11 @@
 #!/bin/bash
 
 #Install K8S cluster
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16
- 
+until sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+do
+    echo "Error while pulling images, try again..." 
+done;
+
 until sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf taint node mykube node-role.kubernetes.io/control-plane-;
 do
     echo "Try untaint node..."

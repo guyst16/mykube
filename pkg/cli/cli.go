@@ -107,7 +107,7 @@ func Cli() {
 					err = ValidateOSImage(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, OS_IMAGE_SHA256SUM)
 					if err != nil {
 						// Download cloud base image
-						log.Println("Download OS image file")
+						log.Println("Download OS image (Base-image.qcow2) to /var/lib/libvirt/mykube/util directory")
 						log.Println("This file being downloaded ONLY once - your next virtual machine creations will be faster!")
 						DownloadFile(LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_PATH, LIBVIRT_MYKUBE_UTIL_BASE_IMAGE_URL)
 					}
