@@ -21,7 +21,11 @@ All the dependencies are included, which means there are **no** previous steps t
 Install `Libvirt`
 For RPM OS:
 ```
-$ yum install qemu-kvm libvirt bridge-utils
+$ sudo yum install qemu-kvm libvirt python3-libvirt libvirt-client bridge-utils
+```
+For DEB OS:
+```
+$ sudo sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
 ```
 
 Run the next commands for deploying k8s single-node cluster installation:
@@ -30,7 +34,7 @@ Run the next commands for deploying k8s single-node cluster installation:
 2. Download & install the desired release package
 3. Run the next command for creating the cluster:
 ```
-$ mykube create --domain <NAME>
+$ sudo mykube create --domain <NAME>
 ```
 ![image](https://github.com/guyst16/mykube/assets/100173467/4ac2ebb4-ce5b-4305-bab1-c659abebfc5d)
 
@@ -48,7 +52,7 @@ $ mykube --help
 Run the next command:
 
 ```
-$ mykube delete --domain <NAME>
+$ sudo mykube delete --domain <NAME>
 ```
 
 ### Get connection details
@@ -56,7 +60,7 @@ $ mykube delete --domain <NAME>
 Run the command:
 
 ```
-$ mykube connect --domain <NAME>
+$ sudo mykube connect --domain <NAME>
 ```
 
 
