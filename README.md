@@ -63,6 +63,12 @@ Run the command:
 $ sudo mykube connect --domain <NAME>
 ```
 
+## So how does it work?
+The Mykube procedure for creating new working K8S cluster is very simple, here are the steps:
+1. Necessary directories for mykube are getting created.
+1. A customized OS image downloaded for the virtual machine which the k8s will run above it (if not already downloaded).
+2. A new virtual machine get deployed using cloud-init for automatic k8s installation.
+3. Done!
 
 #### (Compatibility) OS:
 
