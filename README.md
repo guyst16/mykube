@@ -63,6 +63,22 @@ Run the command:
 $ sudo mykube connect --domain <NAME>
 ```
 
+## How to build?
+1. Run git clone:
+```
+$ git clone https://github.com/guyst16/mykube.git
+$ cd mykube
+```
+2. Run go generate:
+```
+$ go generate pkg/embedfiles/util.go
+```
+3. Build:
+```
+$ go build
+```
+Done! Now you have a `mykube` binary file.
+
 ## So how does it work?
 The Mykube procedure for creating new working K8S cluster is very simple, here are the steps:
 1. Necessary directories for mykube are getting created.
