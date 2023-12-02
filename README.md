@@ -38,7 +38,6 @@ $ sudo mykube create --domain <NAME>
 ```
 ![image](https://github.com/guyst16/mykube/assets/100173467/4ac2ebb4-ce5b-4305-bab1-c659abebfc5d)
 
-
 And you done.
 
 ### Need some help?
@@ -47,6 +46,7 @@ Ask for help:
 ```
 $ mykube --help
 ```
+
 ### Destroy vm
 
 Run the next command:
