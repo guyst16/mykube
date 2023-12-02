@@ -1,0 +1,14 @@
+  <network>
+    <name>mykubevms</name>
+    <forward mode='nat'>
+      <nat>
+        <port start='1024' end='65535'/>
+      </nat>
+    </forward>
+    <bridge name='virbr1' stp='on' delay='0' />
+    <ip address='192.169.142.1' netmask='255.255.255.0'>
+      <dhcp>
+        <range start='192.169.142.2' end='192.169.142.254' />
+      </dhcp>
+    </ip>
+  </network>

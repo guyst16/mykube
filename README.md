@@ -17,7 +17,16 @@ All the dependencies are included, which means there are **no** previous steps t
 
 ### How to Use
 
-> All steps are made on `Linux fedora 5.19.4-200.fc36.x86_64`
+##### Prerequisites
+Install `Libvirt`
+For RPM OS:
+```
+$ sudo yum install qemu-kvm libvirt python3-libvirt libvirt-client bridge-utils
+```
+For DEB OS:
+```
+$ sudo sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+```
 
 Run the next commands for deploying k8s single-node cluster installation:
 
@@ -25,42 +34,65 @@ Run the next commands for deploying k8s single-node cluster installation:
 2. Download & install the desired release package
 3. Run the next command for creating the cluster:
 ```
-$ mykube
+$ sudo mykube create --domain <NAME>
 ```
+![image](https://github.com/guyst16/mykube/assets/100173467/4ac2ebb4-ce5b-4305-bab1-c659abebfc5d)
 
 And you done.
-
-* The command `mykube` is reuseable, which means it will destroy the vm and create a new one if re-executed
 
 ### Need some help?
 
 Ask for help:
-![Screenshot from 2023-01-22 20-54-50](https://user-images.githubusercontent.com/100173467/213934360-3f867824-674e-4ab1-9415-832f3bf203e2.png)
+```
+$ mykube --help
+```
 
 ### Destroy vm
 
 Run the next command:
 
 ```
-$ mykube --destroy
+$ sudo mykube delete --domain <NAME>
 ```
 
-### Quick ssh to vm
+### Get connection details
 
 Run the command:
 
 ```
-$ mykube --connect
+$ sudo mykube connect --domain <NAME>
 ```
 
+## How to build?
+1. Run git clone:
+```
+$ git clone https://github.com/guyst16/mykube.git
+$ cd mykube
+```
+2. Run go generate:
+```
+$ go generate pkg/embedfiles/util.go
+```
+3. Build:
+```
+$ go build
+```
+Done! Now you have a `mykube` binary file.
 
-#### (Compatibility) Linux kernel distributions:
+## So how does it work?
+The Mykube procedure for creating new working K8S cluster is very simple, here are the steps:
+1. Necessary directories for mykube are getting created.
+1. A customized OS image downloaded for the virtual machine which the k8s will run above it (if not already downloaded).
+2. A new virtual machine get deployed using cloud-init for automatic k8s installation.
+3. Done!
 
-- [x] ![Fedora](https://img.shields.io/badge/Fedora-294172?style=for-the-badge&logo=fedora&logoColor=white) - `6.0.5-200.fc36.x86_64`
+#### (Compatibility) OS:
 
-- [ ] ![Ubuntu](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white) 
+- ✔️ ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 
-- [ ] ![Debian](https://img.shields.io/badge/Debian-D70A53?style=for-the-badge&logo=debian&logoColor=white)
+- ⏲️ ![Mac OS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white) 
+
+- ⏲️ ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 
 
