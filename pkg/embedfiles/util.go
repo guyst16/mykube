@@ -4,6 +4,7 @@ import (
 	"embed"
 )
 
+//go:generate rm -rf ./assets
 //go:generate cp -r ../../assets ./assets
 //go:embed assets/*
 var assets embed.FS
