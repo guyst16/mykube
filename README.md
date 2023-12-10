@@ -25,7 +25,7 @@ $ sudo yum install qemu-kvm libvirt python3-libvirt libvirt-client bridge-utils
 ```
 For DEB OS:
 ```
-$ sudo sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
+$ sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils
 ```
 
 Run the next commands for deploying k8s single-node cluster installation:
